@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Between Bubbles">
+  <!--
+    Maskable-иконка: система может обрезать её по кругу, поэтому значимая часть
+    держится внутри центральных 80% (safe zone), а фон залит до краёв.
+  -->
+  <rect width="512" height="512" fill="#efe3dc"/>
+  <g fill="#aa9e54" transform="translate(256 256) scale(0.72) translate(-256 -256)">
+    <path d="M160 96h192c0 74-30 122-78 138v106h62v28H176v-28h62V234c-48-16-78-64-78-138z"/>
+  </g>
+  <rect x="187" y="149" width="138" height="10" fill="#c9a9b5"/>
+</svg>

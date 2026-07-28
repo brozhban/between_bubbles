@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#dacabf" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#062d32" />
+    <title>Between Bubbles — нет соединения</title>
+    <style>
+      /*
+       * Заглушка обязана открываться без сети, поэтому стили лежат прямо здесь: внешний файл
+       * пришлось бы отдельно класть в кэш и держать в нём в согласованном состоянии.
+       * Цвета — из DESIGN.md, обе темы.
+       */
+      :root {
+        --bg: #dacabf;
+        --surface: #efe3dc;
+        --text: #444242;
+        --muted: #595552;
+        --border: #938a83;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #062d32;
+          --surface: #344b52;
+          --text: #e9e9e2;
+          --muted: #767676;
+          --border: #344b52;
+        }
+      }
+
+      body {
+        margin: 0;
+        min-height: 100svh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+        background: var(--bg);
+        color: var(--text);
+        font-family: Inter, system-ui, sans-serif;
+      }
+
+      main {
+        display: grid;
+        gap: 16px;
+        max-width: 420px;
+        padding: 24px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+      }
+
+      h1 {
+        margin: 0;
+        font-family: Lora, Georgia, serif;
+        font-weight: 400;
+        font-size: 28px;
+        line-height: 1.2;
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.5;
+      }
+
+      button {
+        justify-self: start;
+        padding: 14px 24px;
+        background: transparent;
+        border: 1px solid var(--text);
+        border-radius: 0;
+        color: var(--text);
+        font: inherit;
+        font-size: 13px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Нет соединения</h1>
+      <p>
+        Дневник открывается только с интернетом: записи и метрики живут на сервере.
+        Проверьте связь и попробуйте ещё раз.
+      </p>
+      <p lang="en">
+        The diary needs a connection — your entries and metrics live on the server.
+        Check the network and try again.
+      </p>
+      <button type="button" onclick="location.reload()">Обновить · Reload</button>
+    </main>
+  </body>
+</html>

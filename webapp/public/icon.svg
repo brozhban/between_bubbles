@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Between Bubbles">
+  <!-- Квадрат без скруглений и без теней — тот же print-характер, что у интерфейса. -->
+  <rect width="512" height="512" fill="#efe3dc"/>
+  <g fill="#aa9e54">
+    <!-- Чаша бокала: широкая, чтобы читалась на 48 px. -->
+    <path d="M160 96h192c0 74-30 122-78 138v106h62v28H176v-28h62V234c-48-16-78-64-78-138z"/>
+  </g>
+  <rect x="160" y="96" width="192" height="14" fill="#c9a9b5"/>
+</svg>
