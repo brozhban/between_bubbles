@@ -3,6 +3,7 @@ region: REPLACE_WITH_DO_APP_REGION
 alerts:
   - rule: DEPLOYMENT_FAILED
   - rule: DOMAIN_FAILED
+REPLACE_WITH_OPTIONAL_DOMAINS
 static_sites:
   - name: website
     github:

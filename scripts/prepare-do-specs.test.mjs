@@ -275,6 +275,19 @@ describe('prepare-do-specs', () => {
     expect(spec).toContain('value: "https://webapp.example.com"');
   });
 
+  test('attaches the custom domain so browser auth does not depend on the default host', () => {
+    expect(runPrepareSpecs().status).toBe(0);
+    const spec = readFileSync(backendSpecPath, 'utf8');
+
+    expect(spec).toContain('domains:');
+    expect(spec).toContain('- domain: "api.example.com"');
+    expect(spec).toContain('type: PRIMARY');
+
+    // На первом создании домена ещё нет: он появляется вместе с DNS.
+    expect(runPrepareSpecs({}, { target: 'backend-initial' }).status).toBe(0);
+    expect(readFileSync(backendSpecPath, 'utf8')).not.toContain('domains:');
+  });
+
   test('adds the store directory administrators only when they are configured', () => {
     expect(runPrepareSpecs().status).toBe(0);
     expect(readFileSync(backendSpecPath, 'utf8')).not.toContain('ADMIN_EMAILS');

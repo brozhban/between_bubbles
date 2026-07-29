@@ -117,6 +117,9 @@ if (includesBackend) {
     // расшаренных записей, на второй ведут ссылки из писем о пароле.
     'https://REPLACE_WITH_BACKEND_PUBLIC_URL': backendPublicUrl,
     'https://REPLACE_WITH_WEBAPP_PUBLIC_URL': backendWebappUrl,
+    REPLACE_WITH_OPTIONAL_DOMAINS: optionalDomainsBlock(
+      target === 'backend-initial' ? undefined : browserAuthSite.backendUrl,
+    ),
     REPLACE_WITH_OPTIONAL_ADMIN_EMAILS: optionalAdminEmailsBlock(),
     REPLACE_WITH_OPTIONAL_BACKEND_WORKERS: optionalBackendWorkersBlock(),
     REPLACE_WITH_OPTIONAL_BACKEND_CRON_JOBS: optionalBackendCronJobsBlock(),
@@ -129,6 +132,7 @@ if (target === 'webapp' || target === 'all') {
   await writePreparedSpec('webapp-static-app.yaml.example', 'webapp-static-app.yaml', {
     ...commonReplacements(),
     'https://REPLACE_WITH_BACKEND_DEFAULT_INGRESS': browserAuthSite.backendUrl,
+    REPLACE_WITH_OPTIONAL_DOMAINS: optionalDomainsBlock(browserAuthSite.webappUrl),
   })
 }
 
@@ -137,6 +141,11 @@ if (target === 'website' || target === 'all') {
   // server islands, or other runtime-rendered routes need a runtime service instead.
   await writePreparedSpec('website-static-app.yaml.example', 'website-static-app.yaml', {
     ...commonReplacements(),
+    REPLACE_WITH_OPTIONAL_DOMAINS: optionalDomainsBlock(
+      process.env.DO_WEBSITE_URL?.trim()
+        ? normalizeHttpsUrl('DO_WEBSITE_URL', process.env.DO_WEBSITE_URL.trim())
+        : undefined,
+    ),
   })
 }
 
@@ -498,6 +507,20 @@ function assertBuildTimeHttpsUrl(outputName, key, value) {
   if (normalized !== new URL(normalized).origin) {
     throw new Error(`${outputName} ${key} must be an origin URL without a path: ${value}`)
   }
+}
+
+/**
+ * Собственный домен приложения. Пока его нет, App Platform отдаёт служебный адрес на
+ * `ondigitalocean.app` — на нём браузерная авторизация не работает (cookie между двумя
+ * такими хостами считаются сторонними), поэтому домены и задаются здесь же, в спеке.
+ */
+function optionalDomainsBlock(url) {
+  if (!url) return ''
+
+  const host = new URL(url).hostname
+  assertSafeYamlString('domain', host)
+
+  return ['domains:', `  - domain: ${yamlString(host)}`, '    type: PRIMARY'].join('\n')
 }
 
 /**
