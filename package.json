@@ -43,13 +43,14 @@
     "typecheck:website": "bun run --cwd website typecheck",
     "typecheck:backend": "bun run --cwd backend typecheck",
     "test": "bun run test:deploy && bun run test:contracts && bun run test:backend && bun run test:webapp",
-    "test:deploy": "bun test scripts/do-cron.test.mjs scripts/prepare-do-specs.test.mjs scripts/repo-env.test.mjs scripts/architecture-check.test.mjs",
+    "test:deploy": "bun test scripts/audit.test.mjs scripts/do-cron.test.mjs scripts/prepare-do-specs.test.mjs scripts/repo-env.test.mjs scripts/architecture-check.test.mjs",
     "test:contracts": "bun run --cwd packages/contracts test",
     "test:backend": "bun run --cwd backend test",
     "test:backend:unit": "bun run --cwd backend test:unit",
     "test:backend:integration": "bun run --cwd backend test:integration",
     "test:webapp": "bun run --cwd webapp test",
     "smoke:backend:docker": "bun run --cwd backend smoke:docker",
-    "e2e:webapp": "bun run --cwd webapp e2e"
+    "e2e:webapp": "bun run --cwd webapp e2e",
+    "audit": "bun scripts/audit.mjs"
   }
 }
