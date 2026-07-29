@@ -1,3 +1,4 @@
+import { createBackupModule } from './modules/backup'
 import { seedSystemAromaTags } from './modules/diary'
 import { deleteUserPhotoFiles } from './modules/photos'
 import { createBackendRuntime, type BackendRuntime } from './runtime'
@@ -65,6 +66,26 @@ const cronTasks = {
     const { count } = await prisma.user.deleteMany({ where: { id: { in: userIds } } })
     console.log(
       `Cron accounts:purge removed ${count} accounts and ${removedFiles} photo files before ${cutoff.toISOString()}.`,
+    )
+  },
+  /**
+   * Логическая копия базы в объектное хранилище (ТЗ §13). Суточные снимки Managed PostgreSQL
+   * живут в той же учётной записи, что и сама база; эта копия лежит отдельно и переживает
+   * потерю доступа к аккаунту или ошибочное удаление кластера.
+   */
+  'db:backup': async ({ env, prisma }) => {
+    const backups = createBackupModule({ db: prisma, env })
+    if (!backups) {
+      console.warn('Cron db:backup skipped: object storage is not configured.')
+      return
+    }
+
+    const { key, sizeBytes, rows } = await backups.create()
+    const removed = await backups.prune()
+    const total = Object.values(rows).reduce((sum, count) => sum + count, 0)
+
+    console.log(
+      `Cron db:backup wrote ${key} (${sizeBytes} bytes, ${total} rows) and removed ${removed} expired copies.`,
     )
   },
   'diary:aroma-tags:seed': async ({ prisma }) => {

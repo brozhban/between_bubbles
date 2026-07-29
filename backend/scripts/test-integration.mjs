@@ -74,6 +74,7 @@ run(
   [
     'test',
     'src/modules/admin/admin.integration.test.ts',
+    'src/modules/backup/backup.integration.test.ts',
     'src/modules/auth/auth.integration.test.ts',
     'src/modules/diary/diary.integration.test.ts',
     'src/modules/profile/profile.integration.test.ts',

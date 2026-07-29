@@ -23,6 +23,22 @@ services:
     http_port: 8080
     instance_size_slug: REPLACE_WITH_DO_API_INSTANCE_SIZE_SLUG
     instance_count: REPLACE_WITH_DO_API_INSTANCE_COUNT
+    # Про 5xx App Platform уведомлять не умеет, зато умеет про их следствие: контейнер,
+    # который перезапускается, и упёршиеся в потолок ресурсы. Про недоступность базы
+    # сообщает отдельная проверка доступности /health/ready (docs/DEPLOYMENT.md).
+    alerts:
+      - rule: RESTART_COUNT
+        operator: GREATER_THAN
+        value: 3
+        window: FIVE_MINUTES
+      - rule: CPU_UTILIZATION
+        operator: GREATER_THAN
+        value: 85
+        window: TEN_MINUTES
+      - rule: MEM_UTILIZATION
+        operator: GREATER_THAN
+        value: 85
+        window: TEN_MINUTES
     health_check:
       http_path: /health/ready
       initial_delay_seconds: 10

@@ -51,6 +51,9 @@ const productCronJobs = [
   { name: 'accounts-purge', task: 'accounts:purge', schedule: '30 3 * * *' },
   // Сессии: отозванные и просроченные не должны копиться в базе вечно.
   { name: 'sessions-cleanup', task: 'auth:sessions:cleanup', schedule: '45 3 * * *' },
+  // Логическая копия базы в объектное хранилище, раз в неделю (ТЗ §13). Суточные снимки
+  // Managed PostgreSQL живут в той же учётной записи и не спасают от её потери.
+  { name: 'db-backup', task: 'db:backup', schedule: '0 4 * * 0' },
 ]
 const appPlatformComponentOwners = new Map()
 

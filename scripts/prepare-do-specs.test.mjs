@@ -297,7 +297,19 @@ describe('prepare-do-specs', () => {
     for (const task of ['diary:trash:purge', 'accounts:purge', 'auth:sessions:cleanup']) {
       expect(spec).toContain(`bun run start:cron -- ${task}`);
     }
-    expect(spec.match(/kind: SCHEDULED/g)?.length).toBe(3);
+    // Плюс еженедельная копия базы (ТЗ §13): суточные снимки провайдера живут в том же
+    // аккаунте и не спасают от его потери.
+    expect(spec).toContain('bun run start:cron -- db:backup');
+    expect(spec.match(/kind: SCHEDULED/g)?.length).toBe(4);
+  });
+
+  test('alerts on a restarting or starving API container', () => {
+    expect(runPrepareSpecs().status).toBe(0);
+    const spec = readFileSync(backendSpecPath, 'utf8');
+
+    for (const rule of ['RESTART_COUNT', 'CPU_UTILIZATION', 'MEM_UTILIZATION']) {
+      expect(spec).toContain(`rule: ${rule}`);
+    }
   });
 
   test('requires both mail settings together and keeps the key a secret', () => {
