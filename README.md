@@ -136,6 +136,33 @@ DNS живёт в Cloudflare без прокси (серое облако). Ес
 исключена из git. Порядок обновления: `bun run deploy:do:specs backend-final`, затем
 `doctl apps update <id> --spec .scratch/deploy/backend-app.yaml`.
 
+
+### Идентификаторы ресурсов
+
+Нужны для `doctl apps update`, чтения логов и разбора инцидентов.
+
+| Ресурс | ID |
+|---|---|
+| Приложение `between-bubbles-api` | `25ea6f49-9712-4edf-a8d7-1e08ebfe74c1` |
+| Приложение `between-bubbles-webapp` | `08b07e97-5c62-46ad-85eb-4edb883e3670` |
+| Приложение `between-bubbles-website` | `f2b89e9d-eb07-4b93-b4bb-7737a3e84e58` |
+| Кластер базы `between-bubbles-db` | `c76cd293-8dc7-43c4-916e-7cbbafd4e6ac` |
+| Проверка доступности | `782fd0e0-ced7-4291-8dec-fa0a0f4357f0` |
+
+Секреты (ключ подписи сессий, ключи хранилища, ключ Resend) лежат в `.scratch/deploy.env`
+на машине разработчика — в git их нет и не будет. Если файл потерян: ключи хранилища и
+Resend перевыпускаются в их панелях, а `JWT_SECRET` можно прочитать из живой спеки
+(`doctl apps spec get <app-id>`) — менять его нельзя, иначе разлогинятся все.
+
+Полезные команды:
+
+```bash
+doctl apps logs 25ea6f49-9712-4edf-a8d7-1e08ebfe74c1 api --type run --follow
+```
+
+```bash
+doctl apps list-deployments 25ea6f49-9712-4edf-a8d7-1e08ebfe74c1 --format ID,Phase,Created
+```
 ## Что осталось по этапу 1
 
 - Юридические тексты оферты и политики от заказчика. Пока страницы пустые, показывать сервис
