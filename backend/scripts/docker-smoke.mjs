@@ -130,6 +130,10 @@ async function smokeAuthApi() {
       email,
       password: 'quiet-cellar-42',
       displayName: 'Docker Smoke',
+      // Регистрация закрыта для младше 18 и требует согласия с офертой (ТЗ §14),
+      // поэтому дымовой тест обязан слать те же поля, что и настоящая форма.
+      birthDate: '1990-01-01',
+      acceptedTermsVersion: 'smoke',
     }),
   })
 
