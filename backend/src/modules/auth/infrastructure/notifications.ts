@@ -6,12 +6,48 @@ export type Mailer = {
   send(message: MailMessage): Promise<void>
 }
 
+/** Дольше десяти секунд письмо ждать нельзя: на нём висит ответ на регистрацию. */
+const SEND_TIMEOUT_MS = 10_000
+
 /**
- * Почтовый провайдер для проекта ещё не выбран (ТЗ §17), поэтому письма уходят в лог:
- * ссылку видно в выводе бэкенда, и весь сценарий восстановления работает локально целиком.
+ * Отправка через Resend (HTTP API, не SMTP).
  *
- * В продакшене это заглушка, и она об этом честно предупреждает: подключение провайдера —
- * отдельная задача перед запуском.
+ * Написано на обычном запросе вместо их SDK намеренно: пакет ради одного POST — лишняя
+ * зависимость в продакшене, которую придётся обновлять и проверять. Смена провайдера здесь
+ * же и остаётся: сервис знает только про порт `AuthNotifications`, а не про Resend.
+ */
+export function createResendMailer(input: { apiKey: string; from: string }): Mailer {
+  return {
+    async send(message) {
+      const response = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${input.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          from: input.from,
+          to: [message.to],
+          subject: message.subject,
+          text: message.text,
+        }),
+        // Без таймаута зависший провайдер подвесил бы и регистрацию вместе с собой.
+        signal: AbortSignal.timeout(SEND_TIMEOUT_MS),
+      })
+
+      if (!response.ok) {
+        // Тело ответа Resend содержит причину отказа и не содержит ключа — его можно логировать.
+        throw new Error(`Resend rejected the email: ${response.status} ${await response.text()}`)
+      }
+    },
+  }
+}
+
+/**
+ * Запасной вариант для разработки: письма уходят в лог, ссылку видно в выводе бэкенда,
+ * и весь сценарий восстановления пароля работает локально целиком.
+ *
+ * В продакшене это заглушка, и она об этом честно предупреждает.
  */
 export function createLogMailer(input: { isProduction: boolean }): Mailer {
   if (input.isProduction) {

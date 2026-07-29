@@ -120,6 +120,7 @@ if (includesBackend) {
     REPLACE_WITH_OPTIONAL_DOMAINS: optionalDomainsBlock(
       target === 'backend-initial' ? undefined : browserAuthSite.backendUrl,
     ),
+    REPLACE_WITH_OPTIONAL_MAIL_ENVS: optionalMailEnvBlock(),
     REPLACE_WITH_OPTIONAL_ADMIN_EMAILS: optionalAdminEmailsBlock(),
     REPLACE_WITH_OPTIONAL_BACKEND_WORKERS: optionalBackendWorkersBlock(),
     REPLACE_WITH_OPTIONAL_BACKEND_CRON_JOBS: optionalBackendCronJobsBlock(),
@@ -521,6 +522,29 @@ function optionalDomainsBlock(url) {
   assertSafeYamlString('domain', host)
 
   return ['domains:', `  - domain: ${yamlString(host)}`, '    type: PRIMARY'].join('\n')
+}
+
+/**
+ * Отправка писем о пароле и подтверждении почты (ТЗ §13). Ключ и отправитель нужны только
+ * вместе: с одним из них сервер откажется стартовать, и это правильнее, чем молча не слать.
+ */
+function optionalMailEnvBlock() {
+  const apiKey = process.env.RESEND_API_KEY?.trim()
+  const from = process.env.MAIL_FROM?.trim()
+  if (!apiKey && !from) return ''
+
+  const values = {
+    MAIL_FROM: requiredEnv('MAIL_FROM'),
+    RESEND_API_KEY: requiredEnv('RESEND_API_KEY'),
+  }
+  for (const [name, value] of Object.entries(values)) assertSafeYamlString(name, value)
+
+  return Object.entries(values)
+    .map(([name, value]) => {
+      const type = name === 'RESEND_API_KEY' ? 'SECRET' : 'GENERAL'
+      return `      - key: ${name}\n        value: ${yamlString(value)}\n        scope: RUN_TIME\n        type: ${type}`
+    })
+    .join('\n')
 }
 
 /**

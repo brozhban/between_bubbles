@@ -5,7 +5,11 @@ import type { Clock, LogoutCleanup, ProjectUser } from './application/ports'
 import { toBaseUserDto } from './domain/user'
 import { createPrismaAuthRepository } from './infrastructure/auth-repository'
 import { signAccessToken, verifyAccessToken } from './infrastructure/access-tokens'
-import { createAuthNotifications, createLogMailer } from './infrastructure/notifications'
+import {
+  createAuthNotifications,
+  createLogMailer,
+  createResendMailer,
+} from './infrastructure/notifications'
 import { createOneTimeToken, hashOneTimeToken } from './infrastructure/one-time-tokens'
 import { hashPassword, verifyPassword } from './infrastructure/passwords'
 import {
@@ -31,6 +35,13 @@ const systemClock: Clock = {
 
 const noLogoutCleanup: LogoutCleanup = () => undefined
 
+/** Настоящая отправка появляется вместе с ключом; без него письма видны только в логе. */
+function createMailer(env: AppEnv) {
+  return env.RESEND_API_KEY && env.MAIL_FROM
+    ? createResendMailer({ apiKey: env.RESEND_API_KEY, from: env.MAIL_FROM })
+    : createLogMailer({ isProduction: env.NODE_ENV === 'production' })
+}
+
 export function createAuthModule({
   clock = systemClock,
   db,
@@ -46,7 +57,7 @@ export function createAuthModule({
     clock,
     logoutCleanup,
     notifications: createAuthNotifications({
-      mailer: createLogMailer({ isProduction: env.NODE_ENV === 'production' }),
+      mailer: createMailer(env),
       // Ссылка из письма ведёт в webapp; локально это первый разрешённый CORS-origin.
       webappUrl: env.PUBLIC_WEBAPP_URL ?? env.CORS_ORIGINS[0] ?? 'http://localhost:5173',
     }),

@@ -73,6 +73,11 @@ const envSchema = z.object({
   // Почты администраторов справочника магазинов через запятую (ТЗ §2). Роли в базе нет
   // намеренно: список правится конфигом и не оставляет строк, которые потом чистить.
   ADMIN_EMAILS: optionalStringSchema,
+  // Отправка писем о пароле и подтверждении почты (ТЗ §13). Без ключа письма уходят в лог —
+  // это рабочий режим разработки, но не запуска.
+  RESEND_API_KEY: optionalStringSchema,
+  // Отправитель: либо просто адрес, либо «Имя <адрес>».
+  MAIL_FROM: optionalStringSchema,
   // Базовый URL webapp: на него ведут ссылки из писем о пароле и подтверждении почты.
   // Без него берётся первый разрешённый CORS-origin — в разработке это и есть webapp.
   PUBLIC_WEBAPP_URL: optionalUrlSchema,
@@ -86,6 +91,7 @@ const envSchema = z.object({
   validateCorsOrigins(env, ctx)
   validateSessionTtls(env, ctx)
   validateTrustedProxy(env, ctx)
+  validateMailEnv(env, ctx)
   validateStorageEnv(env, ctx)
 })
 
@@ -216,6 +222,28 @@ function validateCorsOrigins(env: z.infer<typeof envSchema>, ctx: z.RefinementCt
         message: `CORS_ORIGINS must use HTTPS when COOKIE_SECURE=true: ${origin}`,
       })
     }
+  }
+}
+
+/**
+ * Ключ и отправитель имеют смысл только вместе: с ключом без адреса Resend отклонит письмо,
+ * а адрес без ключа никуда не отправит. Лучше упасть на старте, чем молча не слать письма.
+ */
+function validateMailEnv(env: z.infer<typeof envSchema>, ctx: z.RefinementCtx) {
+  if (env.RESEND_API_KEY !== undefined && env.MAIL_FROM === undefined) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['MAIL_FROM'],
+      message: 'MAIL_FROM is required when RESEND_API_KEY is set',
+    })
+  }
+
+  if (env.MAIL_FROM !== undefined && env.RESEND_API_KEY === undefined) {
+    ctx.addIssue({
+      code: 'custom',
+      path: ['RESEND_API_KEY'],
+      message: 'RESEND_API_KEY is required when MAIL_FROM is set',
+    })
   }
 }
 

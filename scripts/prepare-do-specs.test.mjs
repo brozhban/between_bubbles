@@ -288,6 +288,22 @@ describe('prepare-do-specs', () => {
     expect(readFileSync(backendSpecPath, 'utf8')).not.toContain('domains:');
   });
 
+  test('requires both mail settings together and keeps the key a secret', () => {
+    const halfConfigured = runPrepareSpecs({ RESEND_API_KEY: 're_test_key' });
+    expect(halfConfigured.status).not.toBe(0);
+    expect(`${halfConfigured.stdout}\n${halfConfigured.stderr}`).toContain('MAIL_FROM');
+
+    expect(
+      runPrepareSpecs({
+        RESEND_API_KEY: 're_test_key',
+        MAIL_FROM: 'Between Bubbles <noreply@example.com>',
+      }).status,
+    ).toBe(0);
+    const spec = readFileSync(backendSpecPath, 'utf8');
+    expect(spec).toContain('key: MAIL_FROM');
+    expect(spec).toMatch(/key: RESEND_API_KEY[\s\S]{0,120}type: SECRET/);
+  });
+
   test('adds the store directory administrators only when they are configured', () => {
     expect(runPrepareSpecs().status).toBe(0);
     expect(readFileSync(backendSpecPath, 'utf8')).not.toContain('ADMIN_EMAILS');
