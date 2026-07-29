@@ -35,6 +35,23 @@ const defaultApiServiceInstanceSizeSlug = 'apps-s-1vcpu-1gb'
 const defaultApiServiceInstanceCount = 1
 const defaultBackendWorkerInstanceSizeSlug = defaultApiServiceInstanceSizeSlug
 const defaultBackendWorkerInstanceCount = 1
+
+/**
+ * Расписание фоновых задач продукта (ТЗ §7.6, §14).
+ *
+ * Живёт в репозитории, а не в переменных окружения: сроки хранения записаны в ТЗ и в политике
+ * конфиденциальности, и «настраивать» их конфигом деплоя означало бы разрешить тихо нарушить
+ * обещание пользователю. Задачи разведены по минутам, чтобы три контейнера не поднимались
+ * одновременно; ночь по UTC выбрана потому, что в это время нагрузки нет.
+ */
+const productCronJobs = [
+  // Корзина: записи удаляются насовсем через 30 дней вместе с их фото (ТЗ §7.6).
+  { name: 'trash-purge', task: 'diary:trash:purge', schedule: '15 3 * * *' },
+  // Аккаунты: мягко удалённые стираются полностью через 30 дней (ТЗ §14) — правовое требование.
+  { name: 'accounts-purge', task: 'accounts:purge', schedule: '30 3 * * *' },
+  // Сессии: отозванные и просроченные не должны копиться в базе вечно.
+  { name: 'sessions-cleanup', task: 'auth:sessions:cleanup', schedule: '45 3 * * *' },
+]
 const appPlatformComponentOwners = new Map()
 
 if (!targets.has(target)) {
@@ -695,6 +712,13 @@ function requiredWorkerRunCommand(name) {
 }
 
 function optionalBackendCronJobsBlock() {
+  const jobs = [...productCronJobs, ...customCronJobFromEnv()]
+
+  return jobs.map((job) => renderCronJob(job)).join('')
+}
+
+/** Дополнительная задача сверх продуктовых — задаётся окружением на конкретной установке. */
+function customCronJobFromEnv() {
   const cronEnvNames = [
     'DO_BACKEND_CRON_NAME',
     'DO_BACKEND_CRON_TASK',
@@ -703,18 +727,24 @@ function optionalBackendCronJobsBlock() {
   ]
   const hasCronEnv = cronEnvNames.some((name) => process.env[name]?.trim())
 
-  if (!hasCronEnv) return ''
+  if (!hasCronEnv) return []
 
-  const name = appPlatformComponentName(
-    'DO_BACKEND_CRON_NAME',
-    requiredEnv('DO_BACKEND_CRON_NAME'),
-  )
-  reserveAppPlatformComponentName(name, 'scheduled job')
-  const task = requiredSafeTaskName('DO_BACKEND_CRON_TASK')
-  const schedule = requiredCronSchedule('DO_BACKEND_CRON_SCHEDULE')
   const timeZone = process.env.DO_BACKEND_CRON_TIME_ZONE?.trim() || 'UTC'
-
   assertSafeYamlString('DO_BACKEND_CRON_TIME_ZONE', timeZone)
+
+  return [
+    {
+      name: appPlatformComponentName('DO_BACKEND_CRON_NAME', requiredEnv('DO_BACKEND_CRON_NAME')),
+      task: requiredSafeTaskName('DO_BACKEND_CRON_TASK'),
+      schedule: requiredCronSchedule('DO_BACKEND_CRON_SCHEDULE'),
+      timeZone,
+    },
+  ]
+}
+
+function renderCronJob({ name, task, schedule, timeZone = 'UTC' }) {
+  reserveAppPlatformComponentName(name, 'scheduled job')
+  validateDigitalOceanCronSchedule(schedule)
 
   return `
   - name: ${name}

@@ -288,6 +288,18 @@ describe('prepare-do-specs', () => {
     expect(readFileSync(backendSpecPath, 'utf8')).not.toContain('domains:');
   });
 
+  test('always schedules the retention jobs the product promises', () => {
+    expect(runPrepareSpecs().status).toBe(0);
+    const spec = readFileSync(backendSpecPath, 'utf8');
+
+    // Без этих задач корзина копится вечно (ТЗ §7.6), а удалённые аккаунты не стираются
+    // физически через 30 дней (ТЗ §14) — то есть обещание из политики не выполняется.
+    for (const task of ['diary:trash:purge', 'accounts:purge', 'auth:sessions:cleanup']) {
+      expect(spec).toContain(`bun run start:cron -- ${task}`);
+    }
+    expect(spec.match(/kind: SCHEDULED/g)?.length).toBe(3);
+  });
+
   test('requires both mail settings together and keeps the key a secret', () => {
     const halfConfigured = runPrepareSpecs({ RESEND_API_KEY: 're_test_key' });
     expect(halfConfigured.status).not.toBe(0);
