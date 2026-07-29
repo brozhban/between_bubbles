@@ -262,6 +262,28 @@ describe('prepare-do-specs', () => {
     expect(spec).toContain('key: SPACES_SECRET_ACCESS_KEY');
     expect(spec.match(/type: SECRET/g)?.length).toBeGreaterThanOrEqual(3);
   });
+
+  test('gives the backend its own public URLs so links and emails are not built on localhost', () => {
+    expect(runPrepareSpecs().status).toBe(0);
+    const spec = readFileSync(backendSpecPath, 'utf8');
+
+    // Публичные страницы записей открываются на самом бэкенде (ТЗ §12),
+    // а ссылки из писем ведут в дневник (ТЗ §13).
+    expect(spec).toContain('key: PUBLIC_BACKEND_URL');
+    expect(spec).toContain('value: "https://api.example.com"');
+    expect(spec).toContain('key: PUBLIC_WEBAPP_URL');
+    expect(spec).toContain('value: "https://webapp.example.com"');
+  });
+
+  test('adds the store directory administrators only when they are configured', () => {
+    expect(runPrepareSpecs().status).toBe(0);
+    expect(readFileSync(backendSpecPath, 'utf8')).not.toContain('ADMIN_EMAILS');
+
+    expect(runPrepareSpecs({ ADMIN_EMAILS: 'owner@example.com' }).status).toBe(0);
+    const withAdmins = readFileSync(backendSpecPath, 'utf8');
+    expect(withAdmins).toContain('key: ADMIN_EMAILS');
+    expect(withAdmins).toContain('owner@example.com');
+  });
 });
 
 function runPrepareSpecs(extraEnv = {}, { skipReleaseGitCheck = true, target = 'backend-final' } = {}) {

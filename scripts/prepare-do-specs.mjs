@@ -87,6 +87,7 @@ const browserAuthSite = ['backend-final', 'webapp', 'all'].includes(target)
 await mkdir(scratchDir, { recursive: true })
 
 let backendWebappUrl
+let backendPublicUrl
 let backendCorsOrigins
 if (includesBackend) {
   reserveAppPlatformComponentName('api', 'API service')
@@ -98,6 +99,11 @@ if (includesBackend) {
   backendWebappUrl = target === 'backend-initial'
     ? 'https://placeholder.invalid'
     : browserAuthSite.webappUrl
+  // На первом создании собственного домена у приложения ещё нет: он появляется вместе с DNS,
+  // и до этого момента публичные ссылки всё равно некуда вести.
+  backendPublicUrl = target === 'backend-initial'
+    ? 'https://placeholder.invalid'
+    : browserAuthSite.backendUrl
   backendCorsOrigins = buildBackendCorsOrigins(
     backendWebappUrl,
     browserAuthSite?.siteDomain,
@@ -107,6 +113,11 @@ if (includesBackend) {
     ...commonReplacements(),
     REPLACE_WITH_64_HEX_JWT_SECRET: jwtSecret,
     'https://REPLACE_WITH_WEBAPP_DEFAULT_INGRESS': backendCorsOrigins,
+    // Публичные адреса нужны рантайму, а не только CORS: на первом открываются страницы
+    // расшаренных записей, на второй ведут ссылки из писем о пароле.
+    'https://REPLACE_WITH_BACKEND_PUBLIC_URL': backendPublicUrl,
+    'https://REPLACE_WITH_WEBAPP_PUBLIC_URL': backendWebappUrl,
+    REPLACE_WITH_OPTIONAL_ADMIN_EMAILS: optionalAdminEmailsBlock(),
     REPLACE_WITH_OPTIONAL_BACKEND_WORKERS: optionalBackendWorkersBlock(),
     REPLACE_WITH_OPTIONAL_BACKEND_CRON_JOBS: optionalBackendCronJobsBlock(),
     REPLACE_WITH_OPTIONAL_STORAGE_ENVS: optionalStorageEnvBlock(),
@@ -487,6 +498,24 @@ function assertBuildTimeHttpsUrl(outputName, key, value) {
   if (normalized !== new URL(normalized).origin) {
     throw new Error(`${outputName} ${key} must be an origin URL without a path: ${value}`)
   }
+}
+
+/**
+ * Администраторы справочника магазинов задаются списком почт (ТЗ §2). Список необязателен:
+ * без него админки в приложении просто нет, и это законное состояние.
+ */
+function optionalAdminEmailsBlock() {
+  const adminEmails = process.env.ADMIN_EMAILS?.trim()
+  if (!adminEmails) return ''
+
+  assertSafeYamlString('ADMIN_EMAILS', adminEmails)
+
+  return [
+    '      - key: ADMIN_EMAILS',
+    `        value: ${yamlString(adminEmails)}`,
+    '        scope: RUN_TIME',
+    '        type: GENERAL',
+  ].join('\n')
 }
 
 function optionalStorageEnvBlock() {

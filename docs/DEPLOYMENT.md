@@ -127,7 +127,11 @@ export DO_BACKEND_URL=https://api.example.com
 export DO_WEBAPP_URL=https://app.example.com
 # Optional when website/admin or another browser origin also calls the API:
 # export DO_ADDITIONAL_CORS_ORIGINS=https://website.example.com,https://admin.example.com
+# Optional store directory administrators (ТЗ §2); without it the admin screens stay hidden:
+# export ADMIN_EMAILS=owner@example.com
 ```
+
+`DO_BACKEND_URL` and `DO_WEBAPP_URL` are not only CORS input: the generator also writes them into the backend runtime as `PUBLIC_BACKEND_URL` and `PUBLIC_WEBAPP_URL`. The first one builds the public entry pages at `/w/{slug}` (ТЗ §12), the second one builds the links inside password-reset and email-confirmation letters (ТЗ §13). Without them the backend falls back to `localhost` and ships unusable links. The `backend-initial` target writes placeholders there on purpose, because the app has no custom domain until DNS is attached; `backend-final` replaces them with the real hosts.
 
 Optional API sizing overrides for an installed project:
 

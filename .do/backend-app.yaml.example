@@ -101,6 +101,17 @@ services:
         value: "true"
         scope: RUN_TIME
         type: GENERAL
+      # Собственный адрес бэкенда: на нём открываются публичные страницы записей /w/{slug}.
+      - key: PUBLIC_BACKEND_URL
+        value: "https://REPLACE_WITH_BACKEND_PUBLIC_URL"
+        scope: RUN_TIME
+        type: GENERAL
+      # Адрес дневника: на него ведут ссылки из писем о пароле и подтверждении почты.
+      - key: PUBLIC_WEBAPP_URL
+        value: "https://REPLACE_WITH_WEBAPP_PUBLIC_URL"
+        scope: RUN_TIME
+        type: GENERAL
+REPLACE_WITH_OPTIONAL_ADMIN_EMAILS
 REPLACE_WITH_OPTIONAL_STORAGE_ENVS
 REPLACE_WITH_OPTIONAL_BACKEND_WORKERS
 jobs:
