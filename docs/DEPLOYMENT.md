@@ -150,7 +150,14 @@ bun run deploy:do:specs backend-initial
 doctl apps spec validate .scratch/deploy/backend-app.yaml >/dev/null
 doctl apps create --spec .scratch/deploy/backend-app.yaml
 
-# 2. Attach api.example.com to the backend app and wait for DNS/TLS, then create
+# 2. Create the website if it is active: it depends on nothing, and the webapp build
+#    needs its address for the legal pages behind the registration consent checkbox.
+export DO_WEBSITE_URL=https://example.com
+bun run deploy:do:specs website
+doctl apps spec validate .scratch/deploy/website-static-app.yaml >/dev/null
+doctl apps create --spec .scratch/deploy/website-static-app.yaml
+
+# 3. Attach api.example.com to the backend app and wait for DNS/TLS, then create
 #    the webapp with its final API and anticipated webapp custom origins.
 export DO_AUTH_SITE_DOMAIN=example.com
 export DO_BACKEND_URL=https://api.example.com
@@ -159,15 +166,11 @@ bun run deploy:do:specs webapp
 doctl apps spec validate .scratch/deploy/webapp-static-app.yaml >/dev/null
 doctl apps create --spec .scratch/deploy/webapp-static-app.yaml
 
-# 3. Attach app.example.com to the webapp app and wait for DNS/TLS. Update
-#    backend CORS only with those final custom origins, then create website if active.
+# 4. Attach app.example.com to the webapp app and wait for DNS/TLS. Update
+#    backend CORS only with those final custom origins.
 bun run deploy:do:specs backend-final
 doctl apps spec validate .scratch/deploy/backend-app.yaml >/dev/null
 doctl apps update <backend-app-id> --spec .scratch/deploy/backend-app.yaml
-
-bun run deploy:do:specs website
-doctl apps spec validate .scratch/deploy/website-static-app.yaml >/dev/null
-doctl apps create --spec .scratch/deploy/website-static-app.yaml
 ```
 
 Generated specs are written with owner-only `0600` permissions because the backend spec contains `JWT_SECRET`. Keep validation output redirected, never attach the spec to logs or support tickets, and delete `.scratch/deploy/backend-app.yaml` after the create/update operation when it is no longer needed.
@@ -263,13 +266,15 @@ Required component shape:
 - Source directory/build context: repository root.
 - Build command: `bun install --frozen-lockfile && bun run build:webapp`.
 - Output directory: `webapp/dist`.
-- Build-time env: `VITE_API_URL=https://api.example.com`.
+- Build-time env: `VITE_API_URL=https://api.example.com`, `VITE_WEBSITE_URL=https://example.com`.
 - Index document: `index.html`.
 - Catch-all document: `index.html`, because the React app uses client-side routing.
 
 App Platform Static Sites are served through DigitalOcean's global CDN by default. Do not disable the CDN cache unless the product needs a specific behavior that the built-in CDN cannot provide.
 
 `VITE_API_URL` is embedded at build time. If it is empty, the browser app can call its own static-site origin at `/api/*` instead of the backend. After changing `VITE_API_URL`, redeploy the static site; runtime env changes alone do not rewrite the already built bundle.
+
+`VITE_WEBSITE_URL` is embedded the same way and points at the site that hosts the offer and the privacy policy. The registration consent checkbox records the accepted document version (ТЗ §14), so its links must open the real documents; a build without this value would send new users to `localhost`. The generator therefore requires `DO_WEBSITE_URL` for the `webapp` and `all` targets.
 
 ## Website Static Site
 

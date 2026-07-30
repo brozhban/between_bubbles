@@ -9,9 +9,11 @@ interface Props {
 	title: string
 	description: string
 	noindex?: boolean
+	/** Страница-документ: её читают целиком, а не просматривают. */
+	longform?: boolean
 }
 
-const { title, description, noindex = false } = Astro.props
+const { title, description, noindex = false, longform = false } = Astro.props
 const publicWebsiteUrl = import.meta.env.PUBLIC_WEBSITE_URL
 const canonicalUrl = publicWebsiteUrl
 	? new URL(Astro.url.pathname, publicWebsiteUrl).toString()
@@ -95,6 +97,39 @@ const canonicalUrl = publicWebsiteUrl
 				color: var(--text-muted);
 			}
 
+			/* Правовые страницы держат перечисления в списках, поэтому они наследуют вид абзаца. */
+			ul,
+			ol {
+				color: var(--text-muted);
+				margin: 1rem 0 0;
+				padding-left: 1.25rem;
+			}
+
+			li + li {
+				margin-top: 0.75rem;
+			}
+
+			code {
+				font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+				font-size: 0.875em;
+				overflow-wrap: anywhere;
+			}
+
+			.version {
+				font-size: 0.8125rem;
+				margin-top: 0.75rem;
+			}
+
+			/*
+			 * Правовые страницы читают целиком, поэтому их текст идёт основным цветом.
+			 * Приглушённый оттенок из DESIGN.md рассчитан на короткие подписи лендинга и на
+			 * странице документа даёт слабый контраст в тёмной теме.
+			 */
+			.longform p,
+			.longform li {
+				color: var(--text);
+			}
+
 			a {
 				color: var(--text);
 			}
@@ -135,7 +170,7 @@ const canonicalUrl = publicWebsiteUrl
 		</style>
 	</head>
 	<body>
-		<main>
+		<main class:list={[{ longform }]}>
 			<slot />
 			<nav class="nav" aria-label="Правовая информация">
 				<a href="/">Главная</a>

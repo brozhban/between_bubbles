@@ -16,6 +16,7 @@ import { Typography } from '@/components/ui/typography'
 import { ApiRequestError } from '@/platform/api'
 import { useAuth } from '../use-auth'
 import { useTranslation } from '../use-translation'
+import { ConsentLabel } from './consent-label'
 import { FormAlert } from './form-errors'
 import type { AuthDraft, FieldErrors } from './form-model'
 import { clearFieldError, errorId, hasErrors, toFieldErrors } from './form-validation'
@@ -214,9 +215,7 @@ export function RegisterForm({
                     setFormError(null)
                   }}
                 />
-                <Typography variant="bodySm" tone="muted">
-                  {t('auth.consent')}
-                </Typography>
+                <ConsentLabel />
               </div>
               <FieldError id={termsErrorId} errors={fieldErrors.acceptedTermsVersion} />
             </Field>

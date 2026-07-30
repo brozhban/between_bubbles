@@ -153,6 +153,10 @@ if (target === 'webapp' || target === 'all') {
   await writePreparedSpec('webapp-static-app.yaml.example', 'webapp-static-app.yaml', {
     ...commonReplacements(),
     'https://REPLACE_WITH_BACKEND_DEFAULT_INGRESS': browserAuthSite.backendUrl,
+    // Адрес website обязателен для дневника: на нём лежат оферта и политика, а согласие
+    // на них webapp записывает при регистрации (ТЗ §14). Собранный без него дневник вёл бы
+    // галочку согласия в никуда.
+    'https://REPLACE_WITH_WEBSITE_DEFAULT_INGRESS': requiredUrlEnv('DO_WEBSITE_URL'),
     REPLACE_WITH_OPTIONAL_DOMAINS: optionalDomainsBlock(browserAuthSite.webappUrl),
   })
 }
@@ -210,9 +214,11 @@ function printUsage() {
   console.error('  all targets: DO_GITHUB_REPO, optional DO_PROJECT_SLUG, DO_GIT_BRANCH, DO_APP_REGION')
   console.error('  backend-initial: JWT_SECRET')
   console.error('  backend-final: JWT_SECRET, DO_BACKEND_URL, DO_WEBAPP_URL, DO_AUTH_SITE_DOMAIN')
-  console.error('  webapp: DO_BACKEND_URL, DO_WEBAPP_URL, DO_AUTH_SITE_DOMAIN')
+  console.error('  webapp: DO_BACKEND_URL, DO_WEBAPP_URL, DO_WEBSITE_URL, DO_AUTH_SITE_DOMAIN')
   console.error('  website: no target-specific values')
-  console.error('  all: JWT_SECRET, DO_BACKEND_URL, DO_WEBAPP_URL, DO_AUTH_SITE_DOMAIN')
+  console.error(
+    '  all: JWT_SECRET, DO_BACKEND_URL, DO_WEBAPP_URL, DO_WEBSITE_URL, DO_AUTH_SITE_DOMAIN',
+  )
   console.error('')
   console.error('Optional deployment settings:')
   console.error('  API sizing: DO_API_INSTANCE_SIZE_SLUG, DO_API_INSTANCE_COUNT')
@@ -475,7 +481,7 @@ function assertSafeProductionEnv(outputName, contents) {
     assertCorsOrigins(outputName, corsOrigins)
   }
 
-  for (const key of ['VITE_API_URL', 'PUBLIC_WEBAPP_URL']) {
+  for (const key of ['VITE_API_URL', 'VITE_WEBSITE_URL', 'PUBLIC_WEBAPP_URL']) {
     const value = findEnvValue(contents, key)
     if (value !== undefined) {
       assertBuildTimeHttpsUrl(outputName, key, value)
