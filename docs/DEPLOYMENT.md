@@ -276,6 +276,15 @@ App Platform Static Sites are served through DigitalOcean's global CDN by defaul
 
 `VITE_WEBSITE_URL` is embedded the same way and points at the site that hosts the offer and the privacy policy. The registration consent checkbox records the accepted document version (ТЗ §14), so its links must open the real documents; a build without this value would send new users to `localhost`. The generator therefore requires `DO_WEBSITE_URL` for the `webapp` and `all` targets.
 
+**A new build-time variable does not reach a live app by pushing code.** App Platform rebuilds from the spec it already stores, so a push to the release branch produces a bundle without the new variable, and the code silently falls back to its default — this is exactly how `VITE_WEBSITE_URL` first shipped pointing at `localhost:4321`. Whenever a release adds or changes a `BUILD_TIME` env, regenerate and apply the spec, then verify the value landed in the built bundle:
+
+```bash
+bun run deploy:do:specs webapp
+doctl apps update <webapp-app-id> --spec .scratch/deploy/webapp-static-app.yaml
+```
+
+The generator's required-env checks only run when specs are regenerated, so they cannot catch this on their own.
+
 ## Website Static Site
 
 Deploy `website` as an App Platform Static Site component while it has only fully prerendered output and no server islands or runtime-rendered routes.
