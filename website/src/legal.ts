@@ -27,10 +27,11 @@ export interface Operator {
 }
 
 export const OPERATOR = {
-	name: '',
-	registration: '',
-	address: '',
-	email: '',
+	name: 'Индивидуальный предприниматель MAKSIM GUSEV',
+	registration: 'идентификационный номер / Tax ID: 304665609',
+	address:
+		'Грузия, г. Тбилиси, Крцанисский район, поселение Поничала 3, корпус 5, подъезд 2, этаж 4',
+	email: 'labotanik77@gmail.com',
 	// Правообладатель — ИП, зарегистрированное в Грузии (ответ заказчика 30.07.2026).
 	jurisdiction: 'Грузии',
 	disputeVenue: 'судами Грузии по месту нахождения Правообладателя',
@@ -41,11 +42,21 @@ export const IS_DRAFT = Object.values(OPERATOR).some((value) => value.trim() ===
 
 export const TERMS_VERSION = CURRENT_TERMS_VERSION
 
+const termsDate = new Date(`${CURRENT_TERMS_VERSION}T00:00:00Z`)
+
 export const TERMS_DATE_LABEL = new Intl.DateTimeFormat('ru-RU', {
 	day: 'numeric',
 	month: 'long',
 	year: 'numeric',
-}).format(new Date(`${CURRENT_TERMS_VERSION}T00:00:00Z`))
+	timeZone: 'UTC',
+}).format(termsDate)
+
+export const TERMS_DATE_LABEL_EN = new Intl.DateTimeFormat('en-US', {
+	day: 'numeric',
+	month: 'long',
+	year: 'numeric',
+	timeZone: 'UTC',
+}).format(termsDate)
 
 /** Незаполненный реквизит показываем как явный пропуск, а не как пустое место в тексте. */
 export function field(value: string, description: string) {

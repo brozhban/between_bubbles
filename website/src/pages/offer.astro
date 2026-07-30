@@ -28,6 +28,7 @@ function hostOf(url: string | undefined, fallback: string) {
 	description="Условия использования сервиса Between Bubbles."
 	noindex={IS_DRAFT}
 	longform
+	alternatePath="/en/offer"
 >
 	<p class="eyebrow">Правовая информация</p>
 	<h1>Публичная оферта</h1>
@@ -204,7 +205,8 @@ function hostOf(url: string | undefined, fallback: string) {
 	<p>
 		К настоящему договору применяется право {field(OPERATOR.jurisdiction, 'страна применимого права')}.
 		Стороны разрешают споры путём переписки: обращение направляется на
-		{' '}{field(OPERATOR.email, 'адрес для обращений')}, срок ответа — 30 дней.
+		{' '}<a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'адрес для обращений')}</a>,
+		срок ответа — 30 дней.
 		Неурегулированные споры рассматриваются {field(OPERATOR.disputeVenue, 'место разрешения споров')}.
 	</p>
 
@@ -213,6 +215,8 @@ function hostOf(url: string | undefined, fallback: string) {
 		<li>Наименование: {field(OPERATOR.name, 'наименование правообладателя')}</li>
 		<li>Регистрационные данные: {field(OPERATOR.registration, 'идентификационный номер ИП')}</li>
 		<li>Адрес: {field(OPERATOR.address, 'адрес для юридически значимых сообщений')}</li>
-		<li>Почта: {field(OPERATOR.email, 'адрес для обращений')}</li>
+		<li>
+			Почта: <a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'адрес для обращений')}</a>
+		</li>
 	</ul>
 </Page>

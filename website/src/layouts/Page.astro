@@ -11,16 +11,60 @@ interface Props {
 	noindex?: boolean
 	/** Страница-документ: её читают целиком, а не просматривают. */
 	longform?: boolean
+	/** Язык страницы. Правовые документы существуют в двух версиях (рекомендация юриста). */
+	lang?: Language
+	/** Адрес той же страницы на другом языке, если он есть. */
+	alternatePath?: string
 }
 
-const { title, description, noindex = false, longform = false } = Astro.props
+type Language = 'ru' | 'en'
+
+/**
+ * Подписи навигации. Отдельного словаря i18n у статического сайта нет и не нужно:
+ * четыре ссылки на два языка дешевле держать здесь, чем тянуть каталог из webapp.
+ */
+const navigation = {
+	ru: {
+		label: 'Правовая информация',
+		links: [
+			{ href: '/', text: 'Главная' },
+			{ href: '/offer', text: 'Оферта' },
+			{ href: '/privacy', text: 'Конфиденциальность' },
+			{ href: '/contacts', text: 'Контакты' },
+		],
+		switchTo: 'English',
+	},
+	en: {
+		label: 'Legal',
+		links: [
+			{ href: '/en/offer', text: 'Terms of Service' },
+			{ href: '/en/privacy', text: 'Privacy Policy' },
+			{ href: '/en/contacts', text: 'Contacts' },
+		],
+		switchTo: 'Русская версия',
+	},
+} satisfies Record<Language, unknown>
+
+const {
+	title,
+	description,
+	noindex = false,
+	longform = false,
+	lang = 'ru',
+	alternatePath,
+} = Astro.props
 const publicWebsiteUrl = import.meta.env.PUBLIC_WEBSITE_URL
 const canonicalUrl = publicWebsiteUrl
 	? new URL(Astro.url.pathname, publicWebsiteUrl).toString()
 	: undefined
+const alternateUrl =
+	alternatePath && publicWebsiteUrl
+		? new URL(alternatePath, publicWebsiteUrl).toString()
+		: alternatePath
+const nav = navigation[lang]
 ---
 
-<html lang="ru">
+<html lang={lang}>
 	<head>
 		<meta charset="utf-8" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -31,6 +75,14 @@ const canonicalUrl = publicWebsiteUrl
 		<meta name="description" content={description} />
 		{noindex && <meta name="robots" content="noindex, nofollow" />}
 		{canonicalUrl && <link rel="canonical" href={canonicalUrl} />}
+		{
+			alternateUrl && (
+				<Fragment>
+					<link rel="alternate" hreflang={lang === 'ru' ? 'en' : 'ru'} href={alternateUrl} />
+					{canonicalUrl && <link rel="alternate" hreflang={lang} href={canonicalUrl} />}
+				</Fragment>
+			)
+		}
 		<meta property="og:type" content="website" />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
@@ -172,11 +224,9 @@ const canonicalUrl = publicWebsiteUrl
 	<body>
 		<main class:list={[{ longform }]}>
 			<slot />
-			<nav class="nav" aria-label="Правовая информация">
-				<a href="/">Главная</a>
-				<a href="/offer">Оферта</a>
-				<a href="/privacy">Конфиденциальность</a>
-				<a href="/contacts">Контакты</a>
+			<nav class="nav" aria-label={nav.label}>
+				{nav.links.map((link) => <a href={link.href}>{link.text}</a>)}
+				{alternatePath && <a href={alternatePath}>{nav.switchTo}</a>}
 			</nav>
 		</main>
 	</body>
