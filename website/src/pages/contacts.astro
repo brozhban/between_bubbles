@@ -8,6 +8,7 @@ import { IS_DRAFT, OPERATOR, field } from '../legal'
 	description="Как связаться с командой сервиса Between Bubbles."
 	noindex={IS_DRAFT}
 	longform
+	alternatePath="/en/contacts"
 >
 	<p class="eyebrow">Правовая информация</p>
 	<h1>Контакты</h1>
@@ -26,7 +27,8 @@ import { IS_DRAFT, OPERATOR, field } from '../legal'
 	<h2>Поддержка</h2>
 	<p>
 		Вопросы по сервису, обращения об обработке и удалении данных, жалобы на публичные
-		ссылки — {field(OPERATOR.email, 'адрес для обращений')}. Отвечаем в течение 30 дней.
+		ссылки — <a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'адрес для обращений')}</a>.
+		Отвечаем в течение 30 дней.
 	</p>
 	<p>
 		Удалить учётную запись и выгрузить дневник можно самостоятельно в настройках, писать
@@ -38,5 +40,8 @@ import { IS_DRAFT, OPERATOR, field } from '../legal'
 		<li>Наименование: {field(OPERATOR.name, 'наименование правообладателя')}</li>
 		<li>Регистрационные данные: {field(OPERATOR.registration, 'идентификационный номер ИП')}</li>
 		<li>Адрес: {field(OPERATOR.address, 'адрес для юридически значимых сообщений')}</li>
+		<li>
+			Почта: <a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'адрес для обращений')}</a>
+		</li>
 	</ul>
 </Page>

@@ -1,0 +1,37 @@
+---
+import Page from '../../layouts/Page.astro'
+import { OPERATOR, field } from '../../legal'
+---
+
+<Page
+	title="Contacts — Between Bubbles"
+	description="How to reach the Between Bubbles team."
+	longform
+	lang="en"
+	alternatePath="/contacts"
+>
+	<p class="eyebrow">Legal</p>
+	<h1>Contacts</h1>
+
+	<h2>Support</h2>
+	<p>
+		Questions about the service, requests regarding the processing and deletion of data, and
+		complaints about shared links —
+		{' '}<a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'contact email address')}</a>.
+		We respond within 30 days.
+	</p>
+	<p>
+		You can delete your account and export your diary yourself in the settings; there is no
+		need to write to us for that.
+	</p>
+
+	<h2>Rightholder</h2>
+	<ul>
+		<li>Name: {field(OPERATOR.name, 'operator name')}</li>
+		<li>Registration: {field(OPERATOR.registration, 'operator tax id')}</li>
+		<li>Address: {field(OPERATOR.address, 'operator address')}</li>
+		<li>
+			Email: <a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'contact email address')}</a>
+		</li>
+	</ul>
+</Page>

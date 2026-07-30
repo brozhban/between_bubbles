@@ -13,10 +13,13 @@ test('blocks registration under 18 and without consent', async ({ page }) => {
   // Галочка записывает версию оферты (ТЗ §14), поэтому оба документа должны открываться
   // до нажатия. Ссылка в никуда — это согласие с текстом, которого человек не видел.
   await expect(page.getByRole('link', { name: 'оферту' })).toHaveAttribute('href', /\/offer$/)
-  await expect(page.getByRole('link', { name: 'политику конфиденциальности' })).toHaveAttribute(
+  await expect(page.getByRole('link', { name: 'политике конфиденциальности' })).toHaveAttribute(
     'href',
     /\/privacy$/,
   )
+
+  // Галочка не проставлена заранее: явное согласие требуют и грузинский закон, и GDPR.
+  await expect(page.getByRole('checkbox')).not.toBeChecked()
 
   // Без галочки согласия дальше не пускает — и объясняет причину человеческим текстом.
   await page.getByRole('button', { name: 'Создать аккаунт' }).click()

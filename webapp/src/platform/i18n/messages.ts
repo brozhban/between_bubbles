@@ -36,9 +36,12 @@ export const messages = {
     'auth.birthDate': 'Дата рождения',
     // {offer} и {privacy} подменяются ссылками на документы: согласие фиксирует версию
     // оферты, значит текст должен открываться до нажатия, а не после (ТЗ §14).
-    'auth.consent': 'Мне есть 18 лет, я принимаю {offer} и {privacy}.',
+    // Согласие на обработку данных названо отдельно от принятия оферты — этого требуют
+    // и грузинский закон, и GDPR: галочка должна быть явной и не проставленной заранее.
+    'auth.consent':
+      'Мне есть 18 лет, я принимаю {offer} и даю согласие на обработку персональных данных согласно {privacy}.',
     'auth.consentOffer': 'оферту',
-    'auth.consentPrivacy': 'политику конфиденциальности',
+    'auth.consentPrivacy': 'политике конфиденциальности',
     'auth.consentRequired': 'Подтвердите, что вам есть 18 лет и вы принимаете условия',
     'auth.createAccount': 'Создать аккаунт',
     'auth.creating': 'Сохраняем…',
@@ -381,7 +384,8 @@ export const messages = {
     'auth.email': 'Email',
     'auth.password': 'Password',
     'auth.birthDate': 'Date of birth',
-    'auth.consent': 'I am 18 or older and I accept the {offer} and the {privacy}.',
+    'auth.consent':
+      'I am 18 or older, I accept the {offer}, and I consent to the processing of my personal data in accordance with the {privacy}.',
     'auth.consentOffer': 'terms of service',
     'auth.consentPrivacy': 'privacy policy',
     'auth.consentRequired': 'Confirm that you are 18 or older and accept the terms',

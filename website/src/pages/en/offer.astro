@@ -1,0 +1,217 @@
+---
+import Page from '../../layouts/Page.astro'
+import { IS_DRAFT, OPERATOR, TERMS_DATE_LABEL_EN, TERMS_VERSION, field } from '../../legal'
+
+/**
+ * Английская оферта — перевод русского оригинала, а не самостоятельный документ.
+ *
+ * Юрист вычитывал русскую версию, поэтому здесь прямо сказано, что при расхождении
+ * приоритет за ней. Любая правка по существу вносится в обе страницы сразу.
+ */
+
+const websiteHost = hostOf(import.meta.env.PUBLIC_WEBSITE_URL, 'winesdiary.com')
+const webappHost = hostOf(import.meta.env.PUBLIC_WEBAPP_URL, 'app.winesdiary.com')
+
+function hostOf(url: string | undefined, fallback: string) {
+	if (!url) return fallback
+	try {
+		return new URL(url).host
+	} catch {
+		return fallback
+	}
+}
+---
+
+<Page
+	title="Terms of Service — Between Bubbles"
+	description="Terms of use for the Between Bubbles service."
+	noindex={IS_DRAFT}
+	longform
+	lang="en"
+	alternatePath="/offer"
+>
+	<p class="eyebrow">Legal</p>
+	<h1>Terms of Service</h1>
+	<p class="version">Last updated: {TERMS_DATE_LABEL_EN} · Version: {TERMS_VERSION}</p>
+
+	<div class="notice">
+		<p style="margin: 0">
+			This is a translation of the Russian original. In case of any discrepancy between the
+			two versions, the <a href="/offer">Russian version</a> prevails.
+		</p>
+	</div>
+
+	<h2>1. Parties and Subject Matter</h2>
+	<p>
+		This document is a public offer by {field(OPERATOR.name, 'operator name')} (hereinafter —
+		the Rightholder), addressed to any legally capable adult individual (hereinafter — the
+		User), to enter into an agreement on the use of the Between Bubbles service on the terms
+		set out below.
+	</p>
+	<p>
+		The service is the Between Bubbles web application: a personal wine tasting diary
+		available at {websiteHost} and {webappHost}. The service is intended for personal,
+		non-commercial use: keeping track of what the User has tasted and of their own
+		impressions.
+	</p>
+
+	<h2>2. Conclusion of the Agreement</h2>
+	<p>
+		The agreement is considered concluded at the moment the User, during registration, ticks
+		the consent checkbox for these terms and the privacy policy and creates an account. The
+		service records the date of consent and the document version in effect at that moment.
+		No separate signing on paper is required.
+	</p>
+
+	<h2>3. Age Restriction</h2>
+	<p>
+		The service is available only to individuals who have reached 18 years of age. The date of
+		birth is requested during registration; providing false information is grounds for
+		blocking the account. Excessive alcohol consumption is harmful to your health. The service
+		does not provide medical advice, does not encourage consumption, and is not an
+		advertisement for alcoholic beverages.
+	</p>
+
+	<h2>4. What the User Receives</h2>
+	<p>
+		The Rightholder grants the right to use the service for its intended purpose: to keep
+		tasting entries, store photos, maintain a personal wine directory, view weekly metrics and
+		statistics, export their data, and publish individual entries via a link. This right is
+		not transferable to third parties.
+	</p>
+	<p>
+		The service is currently provided free of charge. The set of features may change and
+		expand. If paid features appear, their terms will be published in advance as a separate
+		document; the export of data already created remains available in any case.
+	</p>
+
+	<h2>5. Account</h2>
+	<ul>
+		<li>
+			The password and access to the email account are the User's responsibility. Actions
+			performed under the account are considered performed by the User.
+		</li>
+		<li>
+			If you suspect your account has been compromised, change the password: doing so revokes
+			all active sessions on all devices.
+		</li>
+		<li>
+			The email address is used for service messages: address confirmation, password
+			recovery, and notifications about changes to these terms. The service does not send
+			marketing emails.
+		</li>
+	</ul>
+
+	<h2>6. User Data and Content</h2>
+	<ul>
+		<li>
+			Entries, wine cards, notes, and photos remain yours. The Rightholder acquires no rights
+			to them beyond those technically necessary to operate the service: to store, process,
+			display them to you, include them in your export, and in a publication you created
+			yourself.
+		</li>
+		<li>
+			The User confirms that they are entitled to upload these photos and texts and that
+			these do not infringe the rights of third parties.
+		</li>
+		<li>
+			It is prohibited to upload other people's personal data, unlawful materials, insults,
+			or advertising.
+		</li>
+		<li>
+			Store names enter a shared directory and become available to other Users when selecting
+			a store; the link between a name and its author is not shown in the interface and is
+			erased together with the account.
+		</li>
+	</ul>
+
+	<h2>7. Publishing an Entry via a Link</h2>
+	<ul>
+		<li>
+			A link is created only by the User's action. The address consists of 16 random
+			characters and cannot be found by brute force.
+		</li>
+		<li>
+			The publication includes photos, the wine and its characteristics, the rating, taste
+			category, impressions, and notes, as well as the User's name — if they enabled that
+			toggle. Price, store, email address, and other entries are not included.
+		</li>
+		<li>
+			The link can be revoked in one click, after which the page stops opening. Copies,
+			screenshots, and messenger caches made while the link was active are outside the
+			Rightholder's control.
+		</li>
+		<li>A published page is closed to indexing by search engines.</li>
+	</ul>
+
+	<h2>8. Usage Restrictions</h2>
+	<p>
+		The following is not permitted: interfering with the operation of the service, bypassing
+		rate limits, collecting data by automated means, attempting to gain access to other users'
+		diaries, probing security without the Rightholder's written permission, and using the
+		service for unlawful purposes or to promote alcoholic beverages.
+	</p>
+
+	<h2>9. Service Availability</h2>
+	<p>
+		The service is provided "as is". The Rightholder does not guarantee uninterrupted
+		operation or the absence of errors: scheduled maintenance, updates, and outages caused by
+		providers are possible. Database backups are made regularly; nevertheless, the User is
+		advised to keep their own export — it is available in the settings in CSV and JSON formats
+		at any time.
+	</p>
+
+	<h2>10. Liability</h2>
+	<p>
+		The service is a personal record-keeping tool, not medical, dietary, or other professional
+		advice. Decisions about alcohol consumption are made by the User independently and at
+		their own responsibility. To the extent permitted by applicable law, the Rightholder is
+		not liable for lost profits or indirect damages arising from the use of, or inability to
+		use, the service.
+	</p>
+
+	<h2>11. Termination</h2>
+	<ul>
+		<li>
+			The User may delete their account in the settings at any time. Deletion is soft: for 30
+			days recovery upon request remains possible, after which the data is deleted
+			irreversibly.
+		</li>
+		<li>
+			The Rightholder may suspend or terminate access in the event of a breach of these
+			terms, a false date of birth, a threat to the operability or security of the service,
+			and in cases provided for by law. Where possible, with prior notice by email.
+		</li>
+		<li>
+			If the service is discontinued entirely, the Rightholder will notify Users at least 30
+			days in advance and will keep data export available until that date.
+		</li>
+	</ul>
+
+	<h2>12. Changes to the Terms</h2>
+	<p>
+		A new version is published on this page with a new date and version number. The Rightholder
+		notifies Users of material changes at the email address provided during registration and,
+		where necessary, requests consent again. Continued use of the service after a new version
+		takes effect constitutes agreement with it.
+	</p>
+
+	<h2>13. Governing Law and Disputes</h2>
+	<p>
+		This agreement is governed by the law of Georgia. The parties resolve disputes by
+		correspondence: a request is sent to
+		{' '}<a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'contact email address')}</a>,
+		with a response time of 30 days. Unresolved disputes are considered by the courts of
+		Georgia at the location of the Rightholder.
+	</p>
+
+	<h2>14. Rightholder Details</h2>
+	<ul>
+		<li>Name: {field(OPERATOR.name, 'operator name')}</li>
+		<li>Registration: {field(OPERATOR.registration, 'operator tax id')}</li>
+		<li>Address: {field(OPERATOR.address, 'operator address')}</li>
+		<li>
+			Email: <a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'contact email address')}</a>
+		</li>
+	</ul>
+</Page>

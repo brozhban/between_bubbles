@@ -1,5 +1,5 @@
 import { Typography } from '@/components/ui/typography'
-import { OFFER_URL, PRIVACY_URL } from '@/platform/legal'
+import { offerUrl, privacyUrl } from '@/platform/legal'
 import { useTranslation } from '../use-translation'
 
 /**
@@ -13,11 +13,11 @@ import { useTranslation } from '../use-translation'
 const linkMarkerPattern = /(\{offer\}|\{privacy\})/
 
 export function ConsentLabel() {
-  const { t } = useTranslation()
+  const { t, locale } = useTranslation()
 
   const links = {
-    '{offer}': { href: OFFER_URL, label: t('auth.consentOffer') },
-    '{privacy}': { href: PRIVACY_URL, label: t('auth.consentPrivacy') },
+    '{offer}': { href: offerUrl(locale), label: t('auth.consentOffer') },
+    '{privacy}': { href: privacyUrl(locale), label: t('auth.consentPrivacy') },
   }
 
   return (

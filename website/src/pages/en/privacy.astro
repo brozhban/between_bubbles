@@ -1,0 +1,197 @@
+---
+import Page from '../../layouts/Page.astro'
+import { IS_DRAFT, OPERATOR, TERMS_DATE_LABEL_EN, TERMS_VERSION, field } from '../../legal'
+
+/**
+ * Английская политика конфиденциальности.
+ *
+ * Текст — дословный перевод, присланный юристом заказчика 30.07.2026, а не машинный:
+ * правки по существу вносятся сразу в обе версии, иначе документы разъедутся.
+ * Реквизиты и версия общие с русской страницей и приходят из `legal.ts`.
+ */
+---
+
+<Page
+	title="Privacy Policy — Between Bubbles"
+	description="What data Between Bubbles collects, where it is stored, and how to control it."
+	noindex={IS_DRAFT}
+	longform
+	lang="en"
+	alternatePath="/privacy"
+>
+	<p class="eyebrow">Legal</p>
+	<h1>Privacy Policy</h1>
+	<p class="version">Last updated: {TERMS_DATE_LABEL_EN} · Version: {TERMS_VERSION}</p>
+
+	<h2>1. Who Processes the Data</h2>
+	<p>
+		The Data Controller is {field(OPERATOR.name, 'operator name')}
+		{' '}({field(OPERATOR.registration, 'operator tax id')}), registered at:
+		{' '}{field(OPERATOR.address, 'operator address')}. Inquiries regarding any data-related
+		matters are accepted via email at:
+		{' '}<a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'contact email address')}</a>.
+		Data processing is conducted in accordance with the legislation of Georgia.
+	</p>
+	<p>
+		The legal basis for processing is the performance of the contract you enter into by
+		accepting the Terms of Service, and your consent, recorded during registration along
+		with the date and document version. Consent can be withdrawn by deleting your account.
+	</p>
+
+	<h2>2. What Data is Collected</h2>
+	<ul>
+		<li>
+			<strong>Account data:</strong> email address, password hash (argon2id algorithm — the
+			password itself is not stored and cannot be recovered), name (if you provided one),
+			and date of birth. The date of birth is requested to confirm your legal drinking age
+			in accordance with the service rules and is not visible to anyone but you.
+		</li>
+		<li>
+			<strong>Settings:</strong> interface language, theme, timezone, default currency, and
+			the toggle for displaying expenses.
+		</li>
+		<li>
+			<strong>Diary content:</strong> tasting entries including date, volume, rating, taste
+			characteristics, aromas, and notes; wine cards; price, currency, country of purchase,
+			and selected store; photos of the bottle and label.
+		</li>
+		<li>
+			<strong>Technical session data:</strong> IP address and browser string (User-Agent) at
+			the time of login. These are necessary to distinguish devices, revoke sessions, and
+			rate-limit requests during password entry attempts.
+		</li>
+	</ul>
+	<p>
+		The service does not collect data about your health, does not build advertising profiles,
+		and does not enrich your profile with data from external sources.
+	</p>
+
+	<h2>3. Photos</h2>
+	<p>
+		Before saving, the server strips all metadata from the image, including GPS shooting
+		coordinates; only the image orientation is retained. Files are stored in a private
+		storage bucket and are served via signed URLs with a 5-minute lifespan — unauthorized
+		persons cannot access anything via a direct file link.
+	</p>
+
+	<h2>4. Who Can See Your Entries</h2>
+	<ul>
+		<li>
+			By default — only you. There is no global feed, subscriptions, comments, or access for
+			other users to view someone else's diaries within the service.
+		</li>
+		<li>
+			A single entry can be published via a shared link. The publication includes photos,
+			the wine and its characteristics, rating, taste category, impressions, and notes; your
+			name is included only if you have enabled the corresponding toggle. Price, store,
+			email address, and your other entries are not included. The link can be revoked in
+			one click.
+		</li>
+		<li>
+			Store names form a shared directory available to all users when selecting a store.
+			Information about who added the name is not displayed in the interface, and when an
+			account is deleted, this link is also erased from the database.
+		</li>
+	</ul>
+
+	<h2>5. Cookies and Browser Storage</h2>
+	<p>
+		The service uses one technical cookie — <code>between_bubbles_refresh</code>. It is
+		httpOnly (inaccessible to page scripts), transmitted exclusively over HTTPS, restricted
+		to the <code>/api/auth</code> path, and lives for 30 days; it contains the session
+		extension token. Login is impossible without it, therefore no cookie consent banner is
+		required.
+	</p>
+	<p>
+		In the browser's local storage, the service keeps only internal login and logout flags to
+		synchronize open tabs. There are no analytical, advertising, or tracking scripts used in
+		the service.
+	</p>
+
+	<h2>6. Where Data is Stored and Who Else Sees It</h2>
+	<p>Data is hosted in a data center located in Frankfurt (Germany). Subcontractors:</p>
+	<ul>
+		<li>
+			<strong>DigitalOcean</strong> — application servers, database, and storage for photos
+			and backups.
+		</li>
+		<li>
+			<strong>Resend</strong> — delivery of service emails: email address confirmation,
+			password recovery, and notifications regarding changes in terms. Only the recipient's
+			address and the email text are transmitted.
+		</li>
+		<li>
+			<strong>Cloudflare</strong> — domain DNS. User traffic does not pass through
+			Cloudflare.
+		</li>
+	</ul>
+	<p>
+		Data is not transferred or sold to third parties. The only exception is a lawful request
+		from an authorized state body, provided it is presented in the manner prescribed by law.
+	</p>
+
+	<h2>7. How Long Data is Stored</h2>
+	<ul>
+		<li>Diary content — as long as the account exists.</li>
+		<li>Deleted entries remain in the trash for 30 days, after which they are deleted automatically.</li>
+		<li>
+			After deletion, an account is kept for 30 days — this serves as a grace period for
+			recovery upon request. After this period, entries, wines, photos (including files in
+			storage), and personal data are permanently deleted without the possibility of
+			recovery.
+		</li>
+		<li>
+			Sessions live for up to 90 days, and information about completed sessions is deleted
+			within 7 days after they end.
+		</li>
+		<li>
+			Database backups are kept for up to 30 days; therefore, deleted data completely
+			disappears from backups within this timeframe.
+		</li>
+	</ul>
+
+	<h2>8. Your Rights</h2>
+	<ul>
+		<li>
+			<strong>View and correct.</strong> All data about you is visible in the application:
+			profile, entries, and photos. They can be modified or deleted at any time.
+		</li>
+		<li>
+			<strong>Export.</strong> Settings → export diary to CSV and JSON formats, without
+			contacting support and without waiting.
+		</li>
+		<li>
+			<strong>Delete.</strong> Settings → account deletion. No separate request to support
+			is required.
+		</li>
+		<li>
+			<strong>Contact.</strong> Questions, complaints, and requests regarding data
+			processing should be directed to
+			{' '}<a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'contact email address')}</a>.
+			We will respond within 30 days.
+		</li>
+	</ul>
+
+	<h2>9. Security</h2>
+	<p>
+		The connection to the service is secured via HTTPS. Passwords are stored exclusively as
+		an argon2id hash, and email links as a token hash with a limited lifespan (one hour for
+		password recovery, 24 hours for email confirmation). Changing the password and deleting
+		the account will revoke all active sessions. The frequency of login attempts and file
+		uploads is rate-limited. Photos reside in closed storage and are accessible only via
+		short-lived signed links.
+	</p>
+
+	<h2>10. Children</h2>
+	<p>
+		The service is not intended for individuals under 18 years of age and does not
+		intentionally collect their data. If such an account is discovered, it will be
+		immediately deleted.
+	</p>
+
+	<h2>11. Policy Changes</h2>
+	<p>
+		New versions are published on this page with an updated date and version number. We will
+		notify you of any significant changes via the email address provided during registration.
+	</p>
+</Page>
