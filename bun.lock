@@ -98,6 +98,7 @@
       "name": "@between-bubbles/website",
       "version": "0.0.0",
       "dependencies": {
+        "@between-bubbles/contracts": "workspace:*",
         "astro": "^7.1.5",
       },
       "devDependencies": {

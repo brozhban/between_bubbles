@@ -1,0 +1,41 @@
+import { Typography } from '@/components/ui/typography'
+import { OFFER_URL, PRIVACY_URL } from '@/platform/legal'
+import { useTranslation } from '../use-translation'
+
+/**
+ * Подпись к галочке согласия.
+ *
+ * Согласие фиксирует в базе версию оферты (ТЗ §14), поэтому документы должны открываться
+ * до нажатия, а не после. Предложение остаётся одной переводимой строкой с метками
+ * `{offer}` и `{privacy}`: порядок слов задаёт перевод, а не вёрстка — в английском
+ * артикли стоят иначе, чем в русском.
+ */
+const linkMarkerPattern = /(\{offer\}|\{privacy\})/
+
+export function ConsentLabel() {
+  const { t } = useTranslation()
+
+  const links = {
+    '{offer}': { href: OFFER_URL, label: t('auth.consentOffer') },
+    '{privacy}': { href: PRIVACY_URL, label: t('auth.consentPrivacy') },
+  }
+
+  return (
+    <Typography variant="bodySm" tone="muted">
+      {t('auth.consent')
+        .split(linkMarkerPattern)
+        .map((part, index) => {
+          const link = links[part as keyof typeof links]
+          if (!link) return part
+
+          return (
+            <Typography key={`${part}-${index}`} asChild variant="bodySm">
+              <a className="underline" href={link.href} target="_blank" rel="noreferrer">
+                {link.label}
+              </a>
+            </Typography>
+          )
+        })}
+    </Typography>
+  )
+}

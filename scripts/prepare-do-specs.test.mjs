@@ -244,6 +244,24 @@ describe('prepare-do-specs', () => {
     expect(spec).not.toContain('PUBLIC_WEBAPP_URL');
   });
 
+  test('points the webapp at the website so the consent checkbox can open the documents', () => {
+    // Галочка согласия записывает версию оферты (ТЗ §14), а сама оферта лежит на website.
+    // Сборка дневника без его адреса означала бы согласие со ссылкой в никуда.
+    const missing = runPrepareSpecs({ DO_WEBSITE_URL: undefined }, { target: 'webapp' });
+    expect(missing.status).not.toBe(0);
+    expect(`${missing.stdout}\n${missing.stderr}`).toContain('DO_WEBSITE_URL');
+
+    const result = runPrepareSpecs(
+      { DO_WEBSITE_URL: 'https://example.com' },
+      { target: 'webapp' },
+    );
+    expect(result.status).toBe(0);
+
+    const spec = readFileSync(resolve(repoRoot, '.scratch/deploy/webapp-static-app.yaml'), 'utf8');
+    expect(spec).toContain('key: VITE_WEBSITE_URL');
+    expect(spec).toContain('value: "https://example.com"');
+  });
+
   test('requires complete storage settings and marks credentials as secrets', () => {
     const incomplete = runPrepareSpecs({ SPACES_BUCKET: 'uploads' });
     expect(incomplete.status).not.toBe(0);

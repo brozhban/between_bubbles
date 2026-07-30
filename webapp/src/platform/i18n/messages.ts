@@ -34,7 +34,11 @@ export const messages = {
     'auth.email': 'Email',
     'auth.password': 'Пароль',
     'auth.birthDate': 'Дата рождения',
-    'auth.consent': 'Мне есть 18 лет, я принимаю оферту и политику конфиденциальности.',
+    // {offer} и {privacy} подменяются ссылками на документы: согласие фиксирует версию
+    // оферты, значит текст должен открываться до нажатия, а не после (ТЗ §14).
+    'auth.consent': 'Мне есть 18 лет, я принимаю {offer} и {privacy}.',
+    'auth.consentOffer': 'оферту',
+    'auth.consentPrivacy': 'политику конфиденциальности',
     'auth.consentRequired': 'Подтвердите, что вам есть 18 лет и вы принимаете условия',
     'auth.createAccount': 'Создать аккаунт',
     'auth.creating': 'Сохраняем…',
@@ -377,7 +381,9 @@ export const messages = {
     'auth.email': 'Email',
     'auth.password': 'Password',
     'auth.birthDate': 'Date of birth',
-    'auth.consent': 'I am 18 or older and I accept the terms and the privacy policy.',
+    'auth.consent': 'I am 18 or older and I accept the {offer} and the {privacy}.',
+    'auth.consentOffer': 'terms of service',
+    'auth.consentPrivacy': 'privacy policy',
     'auth.consentRequired': 'Confirm that you are 18 or older and accept the terms',
     'auth.createAccount': 'Create account',
     'auth.creating': 'Saving…',
