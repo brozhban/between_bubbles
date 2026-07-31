@@ -115,15 +115,37 @@ function isSingleRepeatedCharacter(value: string): boolean {
   return /^(.)\1+$/.test(value)
 }
 
-/** «12345678», «abcdefgh» и те же ряды задом наперёд. */
+/**
+ * «12345678», «abcdefgh», «qwertyui» и те же последовательности задом наперёд.
+ *
+ * Соседние коды символов ловят только цифры и алфавит; клавиатурные ряды, которые обещало
+ * имя функции, по кодам не соседствуют вовсе — «qwerty» их проверку проходил. Поэтому
+ * ряды заданы явно: это несколько строк, и они точнее любой арифметики по кодам.
+ */
+const KEYBOARD_ROWS = [
+  'qwertyuiop',
+  'asdfghjkl',
+  'zxcvbnm',
+  'йцукенгшщзхъ',
+  'фывапролджэ',
+  'ячсмитьбю',
+  '1234567890',
+]
+
 function isKeyboardOrAlphabetRun(value: string): boolean {
   if (value.length < 4) return false
 
-  const isRun = (step: 1 | -1) =>
-    [...value].every(
+  const lowercase = value.toLowerCase()
+  const isCharCodeRun = (step: 1 | -1) =>
+    [...lowercase].every(
       (character, index) =>
-        index === 0 || character.charCodeAt(0) === value.charCodeAt(index - 1) + step,
+        index === 0 || character.charCodeAt(0) === lowercase.charCodeAt(index - 1) + step,
     )
 
-  return isRun(1) || isRun(-1)
+  if (isCharCodeRun(1) || isCharCodeRun(-1)) return true
+
+  return KEYBOARD_ROWS.some((row) => {
+    const reversed = [...row].reverse().join('')
+    return row.includes(lowercase) || reversed.includes(lowercase)
+  })
 }

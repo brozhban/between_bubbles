@@ -49,7 +49,7 @@ export const wineListItemSchema = wineSchema.extend({
   tastingCount: z.number().int().nonnegative(),
   averageRating: z.number().nullable(),
   lastTastedOn: isoDateSchema.nullable(),
-  thumbUrl: z.string().nullable(),
+  thumbUrl: z.url().nullable(),
 })
 
 export const wineListQuerySchema = z.object({

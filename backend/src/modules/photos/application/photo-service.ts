@@ -78,6 +78,13 @@ export class PhotoService {
       throw error
     }
 
+    // Лимит выбрали параллельным запросом, пока шла обработка: объекты уже в хранилище,
+    // а строки не будет — убираем за собой.
+    if (record === null) {
+      await this.removeFiles({ storageKey, thumbKey }).catch(() => undefined)
+      throw new PhotoFailure('limit_reached', 'An entry can have at most two photos')
+    }
+
     return this.toDto(record)
   }
 

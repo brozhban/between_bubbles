@@ -49,7 +49,8 @@ export type PhotoRepository = {
     height: number
     sizeBytes: number
     mimeType: string
-  }): Promise<PhotoRecord>
+    /** `null` — лимит фото на запись уже выбран: проверка идёт под блокировкой строки. */
+  }): Promise<PhotoRecord | null>
   findForEntry(input: { userId: string; entryId: string }): Promise<PhotoRecord[]>
   findById(input: { userId: string; photoId: string }): Promise<PhotoRecord | null>
   delete(input: { userId: string; photoId: string }): Promise<PhotoRecord | null>

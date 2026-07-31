@@ -1,5 +1,6 @@
 import type { DbClient } from '../../../db'
 import type { PhotoRecord, PhotoRepository } from '../application/ports'
+import { MAX_PHOTOS_PER_ENTRY } from '../domain/image'
 
 /**
  * Prisma-адаптер фото. Все операции идут по `userId`: чужой entryId или photoId просто
@@ -20,20 +21,38 @@ export function createPrismaPhotoRepository(db: DbClient): PhotoRepository {
     },
 
     async create(input) {
-      const photo = await db.entryPhoto.create({
-        data: {
-          userId: input.userId,
-          entryId: input.entryId,
-          kind: input.kind,
-          storageKey: input.storageKey,
-          thumbKey: input.thumbKey,
-          width: input.width,
-          height: input.height,
-          sizeBytes: input.sizeBytes,
-          mimeType: input.mimeType,
-        },
+      /*
+       * Лимит проверяется внутри транзакции, под блокировкой строки записи.
+       *
+       * Снаружи он уже посчитан, но между тем счётом и вставкой помещается второй запрос:
+       * два параллельных сохранения видели по одному фото каждое и добавляли третье.
+       * `FOR UPDATE` на строке записи выстраивает такие запросы в очередь — блокируются
+       * только загрузки в одну и ту же запись, остальные друг другу не мешают.
+       */
+      const photo = await db.$transaction(async (tx) => {
+        await tx.$queryRaw`SELECT id FROM tasting_entries WHERE id = ${input.entryId}::uuid FOR UPDATE`
+
+        const existing = await tx.entryPhoto.count({
+          where: { entryId: input.entryId, userId: input.userId },
+        })
+        if (existing >= MAX_PHOTOS_PER_ENTRY) return null
+
+        return tx.entryPhoto.create({
+          data: {
+            userId: input.userId,
+            entryId: input.entryId,
+            kind: input.kind,
+            storageKey: input.storageKey,
+            thumbKey: input.thumbKey,
+            width: input.width,
+            height: input.height,
+            sizeBytes: input.sizeBytes,
+            mimeType: input.mimeType,
+          },
+        })
       })
-      return toRecord(photo)
+
+      return photo ? toRecord(photo) : null
     },
 
     async findForEntry({ userId, entryId }) {

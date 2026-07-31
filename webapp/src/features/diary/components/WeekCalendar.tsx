@@ -16,15 +16,19 @@ export function WeekCalendar({
   className?: string
 }) {
   const { locale } = useTranslation()
+  const Element = onSelectDay ? 'button' : 'div'
 
   return (
     <div className={cn('grid grid-cols-7 border border-border', className)}>
       {days.map((day) => (
-        <button
+        // Обработчика выбора дня никто не передаёт, поэтому все семь ячеек — это семь
+        // заблокированных кнопок: клавиатура на них останавливается, скринридер объявляет
+        // «button, dimmed». Пока выбор дня не понадобился продукту, это обычная разметка.
+        <Element
           key={day.date}
-          type="button"
-          disabled={!onSelectDay}
-          onClick={() => onSelectDay?.(day.date)}
+          {...(onSelectDay
+            ? { type: 'button' as const, onClick: () => onSelectDay(day.date) }
+            : {})}
           className={cn(
             'flex min-h-20 flex-col items-center gap-2 border-r border-border p-2 last:border-r-0',
             onSelectDay && 'hover:bg-card',
@@ -39,7 +43,7 @@ export function WeekCalendar({
           <Typography variant="bodyXs" aria-label={`${day.entryCount}`}>
             {'🍷'.repeat(Math.min(day.entryCount, 4))}
           </Typography>
-        </button>
+        </Element>
       ))}
     </div>
   )

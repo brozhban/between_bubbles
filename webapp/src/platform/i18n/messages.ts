@@ -224,6 +224,8 @@ export const messages = {
     'photos.hint': 'До двух фото на запись. Геоданные снимка удаляются при загрузке.',
     'photos.pendingHint': 'До двух фото на запись. Они загрузятся вместе с записью, геоданные снимка удаляются.',
     'photos.uploadFailed': 'Не удалось загрузить фото. Попробуйте ещё раз.',
+    'photos.decodeFailed': 'Не удалось открыть изображение. Попробуйте JPEG или PNG.',
+    'photos.compressFailed': 'Не удалось подготовить фото к загрузке. Попробуйте другой файл.',
 
     'share.label': 'Публикация',
     'share.hint': 'Ссылку можно отправить кому угодно: она открывается без входа в дневник и не индексируется поиском.',
@@ -569,6 +571,8 @@ export const messages = {
     'photos.hint': 'Up to two photos per entry. Location data is stripped on upload.',
     'photos.pendingHint': 'Up to two photos per entry. They upload together with the entry; location data is stripped.',
     'photos.uploadFailed': 'Could not upload the photo. Please try again.',
+    'photos.decodeFailed': 'Could not open the image. Try a JPEG or a PNG.',
+    'photos.compressFailed': 'Could not prepare the photo for upload. Try another file.',
 
     'share.label': 'Sharing',
     'share.hint': 'The link opens without signing in and stays out of search results.',

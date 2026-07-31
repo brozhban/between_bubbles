@@ -59,13 +59,30 @@ export function createSpacesBackupStorage(env: AppEnv): BackupStorage | null {
     },
 
     async list(prefix) {
-      const response = await s3.send(
-        new ListObjectsV2Command({ Bucket: bucket, Prefix: prefix, MaxKeys: 1000 }),
-      )
+      // S3 отдаёт максимум 1000 ключей за запрос и помечает остаток `IsTruncated`. Без
+      // дочитывания страниц чистка старых копий незаметно переставала бы видеть их часть,
+      // и хранилище росло бы вечно — тем медленнее, чем дольше живёт проект.
+      const keys: string[] = []
+      let continuationToken: string | undefined
 
-      return (response.Contents ?? [])
-        .map((object) => object.Key)
-        .filter((key): key is string => typeof key === 'string')
+      do {
+        const response = await s3.send(
+          new ListObjectsV2Command({
+            Bucket: bucket,
+            Prefix: prefix,
+            MaxKeys: 1000,
+            ContinuationToken: continuationToken,
+          }),
+        )
+
+        for (const object of response.Contents ?? []) {
+          if (typeof object.Key === 'string') keys.push(object.Key)
+        }
+
+        continuationToken = response.IsTruncated ? response.NextContinuationToken : undefined
+      } while (continuationToken)
+
+      return keys
     },
 
     async delete(key) {

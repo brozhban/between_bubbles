@@ -41,3 +41,16 @@ describe('password strength (ТЗ §13)', () => {
     expect(passwordSchema.safeParse('quiet-cellar-42').success).toBe(true)
   })
 })
+
+test('клавиатурные ряды не проходят как пароль', () => {
+  // Имя проверки обещало ряды клавиатуры, а сравнение шло по соседним кодам символов —
+  // «qwertyui» им не является и раньше считался нормальным паролем.
+  for (const password of ['qwertyui', 'iuytrewq', 'asdfghjk', 'йцукенгш', 'ячсмитьб']) {
+    expect(isCompromisedPassword(password)).toBe(true)
+  }
+})
+
+test('обычный пароль из букв одного ряда не путается с рядом', () => {
+  // «wireless» набирается почти одним рядом, но рядом не является.
+  expect(isCompromisedPassword('wireless-cellar')).toBe(false)
+})

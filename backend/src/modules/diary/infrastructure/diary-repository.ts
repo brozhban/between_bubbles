@@ -104,7 +104,7 @@ export function createPrismaDiaryRepository(db: DbClient): DiaryRepository {
       return db.$transaction(async (tx) => {
         const existing = await tx.tastingEntry.findFirst({
           where: { id: entryId, userId, deletedAt: null },
-          select: { id: true, weekId: true },
+          select: { id: true, weekId: true, storeId: true },
         })
         if (!existing) return null
 
@@ -134,7 +134,12 @@ export function createPrismaDiaryRepository(db: DbClient): DiaryRepository {
           include: entryInclude,
         })
 
-        await touchStore(tx, userId, fields.storeId ?? null)
+        // Счётчик магазина растёт только когда магазин действительно сменился: иначе любое
+        // сохранение записи — правка заметки, оценки — накручивало общий рейтинг магазина
+        // в справочнике, которым пользуются все.
+        if (fields.storeId !== undefined && fields.storeId !== existing.storeId) {
+          await touchStore(tx, userId, fields.storeId ?? null)
+        }
         if (weekId !== undefined && weekId !== existing.weekId) {
           await dropEmptyWeek(tx, userId, existing.weekId)
         }
@@ -546,11 +551,15 @@ function paginateWines(rows: WineListRow[], filters: WineListFilters): WineListR
     return compared === 0 ? left.id.localeCompare(right.id) : compared * direction
   })
 
-  const start = filters.cursor
-    ? filtered.findIndex((row) => row.id === filters.cursor) + 1
-    : 0
+  if (!filters.cursor) return filtered.slice(0, filters.limit)
 
-  return filtered.slice(start, start + filters.limit)
+  // Курсорная строка могла выпасть из выборки, пока листали: вино удалили, переименовали
+  // или оно перестало проходить фильтр. `findIndex` вернул бы -1, а -1 + 1 = 0 — и список
+  // молча начинался бы заново, зацикливая бесконечный скролл на первой странице.
+  const cursorIndex = filtered.findIndex((row) => row.id === filters.cursor)
+  if (cursorIndex === -1) return []
+
+  return filtered.slice(cursorIndex + 1, cursorIndex + 1 + filters.limit)
 }
 
 function compareWines(left: WineListRow, right: WineListRow, sort: WineListFilters['sort']) {

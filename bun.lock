@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "vibecoding-template",
+      "name": "between-bubbles",
       "devDependencies": {
         "tldts": "^7.4.9",
       },

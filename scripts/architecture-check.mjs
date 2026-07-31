@@ -75,6 +75,16 @@ async function main() {
     }
   }
 
+  // Проверка, которой нечего проверять, — это не «пройдено». Если список корней разъедется
+  // с реальной структурой (переименовали папку, вынесли поверхность), молчаливый зелёный
+  // ответ означал бы, что границы больше никто не стережёт.
+  if (files.length === 0) {
+    console.error(
+      `Architecture check found no source files under: ${sourceRoots.join(', ')}. Check the root list.`,
+    )
+    process.exit(1)
+  }
+
   const violations = checkArchitectureSources(files)
   if (violations.length === 0) {
     console.log(`Architecture check passed (${files.length} source files).`)

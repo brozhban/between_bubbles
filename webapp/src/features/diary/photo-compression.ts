@@ -7,10 +7,23 @@
  * отбрасывает EXIF, а сервер всё равно вырезает его повторно — клиенту тут не доверяют.
  */
 
+import type { MessageKey } from '@/platform/i18n'
+
 const MAX_DIMENSION = 1600
 const JPEG_QUALITY = 0.82
 
-export class PhotoCompressionError extends Error {}
+/**
+ * Несёт ключ подписи, а не готовый текст: сообщение показывается пользователю, значит
+ * обязано быть на языке интерфейса. Раньше одна строка была русской, две — английскими.
+ */
+export class PhotoCompressionError extends Error {
+  readonly messageKey: MessageKey
+
+  constructor(messageKey: MessageKey) {
+    super(messageKey)
+    this.messageKey = messageKey
+  }
+}
 
 export async function compressToJpeg(file: File): Promise<Uint8Array> {
   const bitmap = await decode(file)
@@ -23,14 +36,14 @@ export async function compressToJpeg(file: File): Promise<Uint8Array> {
   canvas.width = width
   canvas.height = height
   const context = canvas.getContext('2d')
-  if (!context) throw new PhotoCompressionError('Canvas is not available')
+  if (!context) throw new PhotoCompressionError('photos.compressFailed')
   context.drawImage(bitmap, 0, 0, width, height)
   bitmap.close?.()
 
   const blob = await new Promise<Blob | null>((resolve) =>
     canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY),
   )
-  if (!blob) throw new PhotoCompressionError('Could not encode the image')
+  if (!blob) throw new PhotoCompressionError('photos.compressFailed')
 
   return new Uint8Array(await blob.arrayBuffer())
 }
@@ -44,8 +57,6 @@ async function decode(file: File): Promise<ImageBitmap> {
   try {
     return await createImageBitmap(file, { imageOrientation: 'from-image' })
   } catch {
-    throw new PhotoCompressionError(
-      'Не удалось открыть изображение. Попробуйте JPEG или PNG.',
-    )
+    throw new PhotoCompressionError('photos.decodeFailed')
   }
 }

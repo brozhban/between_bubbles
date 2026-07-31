@@ -82,7 +82,7 @@ export function PhotoUploader(props: PhotoUploaderProps) {
     } catch (caught) {
       setError(
         caught instanceof PhotoCompressionError
-          ? caught.message
+          ? t(caught.messageKey)
           : caught instanceof ApiRequestError
             ? caught.message
             : t('photos.uploadFailed'),

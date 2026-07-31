@@ -100,9 +100,15 @@ export const entryPhotoSchema = z.object({
   kind: photoKindSchema,
   width: z.number().int(),
   height: z.number().int(),
-  /** Подписанные URL с коротким TTL (ТЗ §11); клиент не должен их кэшировать надолго. */
-  url: z.string(),
-  thumbUrl: z.string(),
+  /**
+   * Подписанные URL с коротким TTL (ТЗ §11); клиент не должен их кэшировать надолго.
+   *
+   * Схема не приколочена к `https:` вопреки общему правилу пакета: эти адреса выдаёт
+   * сам бэкенд, и локально они приходят с `http://localhost`. Проверяем, что это
+   * вообще URL, — от голого `z.string()` толку не было.
+   */
+  url: z.url(),
+  thumbUrl: z.url(),
   expiresAt: z.string().datetime(),
 })
 
@@ -167,7 +173,7 @@ export const entryListItemSchema = z.object({
   currency: currencySchema.nullable(),
   tasteCategory: tasteCategorySchema.nullable(),
   isSameBottleRepeat: z.boolean(),
-  thumbUrl: z.string().nullable(),
+  thumbUrl: z.url().nullable(),
 })
 
 export const entryResponseSchema = z.object({ entry: entrySchema })

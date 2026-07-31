@@ -61,17 +61,23 @@ describe('image processor', () => {
     expect(result.full.height).toBe(200)
   })
 
-  test('produces a JPEG with no EXIF, even from an oriented source', async () => {
-    // Кладём ориентацию 6 (поворот на 90°) в исходник и убеждаемся, что в результате её нет.
-    const oriented = await new Jimp({ width: 40, height: 20, color: 0x2277bbff })
-      .getBuffer(JimpMime.jpeg)
+  test('strips an EXIF block with GPS coordinates out of the result', async () => {
+    // Прошлая версия теста собирала исходник через Jimp, где EXIF нет вовсе, и проверяла
+    // отсутствие того, чего не было. Здесь метаданные кладутся в файл руками: сегмент APP1
+    // с маркером «Exif» и узнаваемой строкой внутри — так проверяется само вырезание,
+    // а не свойство конструктора.
+    const secret = 'GPS-41.6938-44.8015'
+    const withExif = withExifSegment(await makeJpeg(80, 60), secret)
 
-    const result = await processor.process(oriented)
-    const meta = await Jimp.fromBuffer(Buffer.from(result.full.bytes))
+    expect(Buffer.from(withExif).includes('Exif')).toBe(true)
+    expect(Buffer.from(withExif).includes(secret)).toBe(true)
 
-    expect(meta.mime).toBe('image/jpeg')
-    // jimp не переносит EXIF в результат по построению — метаданных нет.
-    expect((meta as unknown as { exif?: unknown }).exif ?? null).toBeNull()
+    const result = await processor.process(withExif)
+    const output = Buffer.from(result.full.bytes)
+
+    expect(output.includes(secret)).toBe(false)
+    expect(output.includes('Exif')).toBe(false)
+    expect(hasSegment(result.full.bytes, 0xe1)).toBe(false)
   })
 
   test('rejects bytes that are not an accepted image', async () => {
@@ -84,3 +90,32 @@ describe('image processor', () => {
     await expect(processor.process(new Uint8Array([]))).rejects.toBeInstanceOf(PhotoFailure)
   })
 })
+
+/** Вставляет сегмент APP1 с заголовком EXIF сразу после SOI — так его пишут камеры. */
+function withExifSegment(jpeg: Uint8Array, payload: string): Uint8Array {
+  const header = Buffer.from('Exif\0\0', 'binary')
+  const body = Buffer.concat([header, Buffer.from(payload, 'binary')])
+  const segment = Buffer.alloc(4 + body.length)
+  segment[0] = 0xff
+  segment[1] = 0xe1
+  segment.writeUInt16BE(body.length + 2, 2)
+  body.copy(segment, 4)
+
+  return Buffer.concat([Buffer.from(jpeg.subarray(0, 2)), segment, Buffer.from(jpeg.subarray(2))])
+}
+
+/** Есть ли в потоке сегмент с указанным маркером — разбором по длинам, а не поиском байтов. */
+function hasSegment(jpeg: Uint8Array, marker: number): boolean {
+  const view = new DataView(jpeg.buffer, jpeg.byteOffset, jpeg.byteLength)
+  let offset = 2
+
+  while (offset + 3 < jpeg.length) {
+    if (jpeg[offset] !== 0xff) return false
+    const current = jpeg[offset + 1]
+    if (current === marker) return true
+    if (current === 0xda || current === 0xd9) return false
+    offset += 2 + view.getUint16(offset + 2)
+  }
+
+  return false
+}
