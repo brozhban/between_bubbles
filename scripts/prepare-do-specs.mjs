@@ -8,7 +8,12 @@ import { getDomain } from 'tldts'
 import { validateDigitalOceanCronSchedule } from './do-cron.mjs'
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const scratchDir = resolve(repoRoot, '.scratch/deploy')
+// Каталог вывода переопределяется, чтобы тесты не писали в артефакт рантбука: файл из
+// `.scratch/deploy` идёт прямо в `doctl apps update`, и тестовые значения в нём означали бы
+// прод с чужим репозиторием и опубликованным в этом же репозитории ключом подписи сессий.
+const scratchDir = process.env.DO_SPEC_OUTPUT_DIR
+  ? resolve(process.env.DO_SPEC_OUTPUT_DIR)
+  : resolve(repoRoot, '.scratch/deploy')
 const targets = new Set(['backend-initial', 'backend-final', 'webapp', 'website', 'all'])
 const target = process.argv[2]
 const knownWeakJwtSecrets = new Set(['replace-with-at-least-32-random-characters'])
@@ -226,6 +231,7 @@ function printUsage() {
   console.error('  worker: DO_BACKEND_WORKER_ENABLED=true, DO_BACKEND_WORKER_RUN_COMMAND')
   console.error('  cron: DO_BACKEND_CRON_NAME, DO_BACKEND_CRON_TASK, DO_BACKEND_CRON_SCHEDULE')
   console.error('  storage: complete SPACES_* group from backend/.env.example')
+  console.error('  output: DO_SPEC_OUTPUT_DIR (defaults to .scratch/deploy; tests use a temp dir)')
 }
 
 function requiredEnv(name) {

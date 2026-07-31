@@ -1,12 +1,40 @@
 import { spawnSync } from 'node:child_process';
-import { readFileSync, statSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
-import { describe, expect, test } from 'bun:test';
+import { afterAll, describe, expect, test } from 'bun:test';
 
 const repoRoot = resolve(import.meta.dirname, '..');
-const backendSpecPath = resolve(repoRoot, '.scratch/deploy/backend-app.yaml');
+
+/**
+ * Спеки прогона живут во временном каталоге, а не в `.scratch/deploy`.
+ *
+ * Тот каталог — артефакт рантбука: файл оттуда идёт прямо в `doctl apps update`. Пока
+ * тесты писали туда же, обычный `bun run test` перед релизом подменял боевую спеку
+ * тестовой — с чужим GitHub-репозиторием и ключом подписи сессий из этого файла.
+ */
+const specOutputDir = mkdtempSync(resolve(tmpdir(), 'do-specs-'));
+const backendSpecPath = resolve(specOutputDir, 'backend-app.yaml');
+
+afterAll(() => {
+  rmSync(specOutputDir, { recursive: true, force: true });
+});
 
 describe('prepare-do-specs', () => {
+  test('does not touch the runbook artifact directory', () => {
+    // Регресс на реальный случай: `bun run test` перед релизом переписывал
+    // `.scratch/deploy/backend-app.yaml` тестовыми значениями, а именно этот файл
+    // рантбук скармливает `doctl apps update`.
+    const runbookSpec = resolve(repoRoot, '.scratch/deploy/backend-app.yaml');
+    const before = statSync(runbookSpec, { throwIfNoEntry: false })?.mtimeMs ?? null;
+
+    expect(runPrepareSpecs().status).toBe(0);
+    expect(readFileSync(backendSpecPath, 'utf8')).toContain('between-bubbles-test-api');
+
+    const after = statSync(runbookSpec, { throwIfNoEntry: false })?.mtimeMs ?? null;
+    expect(after).toBe(before);
+  });
+
   test('rejects placeholder and obviously weak production JWT secrets', () => {
     for (const jwtSecret of [
       'replace-with-at-least-32-random-characters',
@@ -240,7 +268,7 @@ describe('prepare-do-specs', () => {
     );
 
     expect(result.status).toBe(0);
-    const spec = readFileSync(resolve(repoRoot, '.scratch/deploy/website-static-app.yaml'), 'utf8');
+    const spec = readFileSync(resolve(specOutputDir, 'website-static-app.yaml'), 'utf8');
     expect(spec).not.toContain('PUBLIC_WEBAPP_URL');
   });
 
@@ -257,7 +285,7 @@ describe('prepare-do-specs', () => {
     );
     expect(result.status).toBe(0);
 
-    const spec = readFileSync(resolve(repoRoot, '.scratch/deploy/webapp-static-app.yaml'), 'utf8');
+    const spec = readFileSync(resolve(specOutputDir, 'webapp-static-app.yaml'), 'utf8');
     expect(spec).toContain('key: VITE_WEBSITE_URL');
     expect(spec).toContain('value: "https://example.com"');
   });
@@ -372,6 +400,7 @@ function runPrepareSpecs(extraEnv = {}, { skipReleaseGitCheck = true, target = '
       PATH: process.env.PATH ?? '',
       HOME: process.env.HOME ?? '',
       ...testOnlyEnv,
+      DO_SPEC_OUTPUT_DIR: specOutputDir,
       DO_PROJECT_SLUG: 'between-bubbles-test',
       DO_GITHUB_REPO: 'owner/repo',
       DO_GIT_BRANCH: 'main',

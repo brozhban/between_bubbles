@@ -159,6 +159,31 @@ async function smokeAuthApi() {
   process.stdout.write('Backend Docker DB-backed auth smoke passed\n')
 }
 
+/**
+ * Образ не должен нести ни одного `.env`.
+ *
+ * `docker build` сопоставляет шаблоны `.dockerignore` от корня контекста, поэтому запись
+ * без `**/` исключает только корневой файл, а `backend/.env` уезжает внутрь вместе с
+ * ключами разработчика — и `import 'dotenv/config'` подхватывает его на старте контейнера.
+ * Проверяем собранный образ, а не текст `.dockerignore`: ловить надо результат.
+ */
+function assertImageCarriesNoSecrets() {
+  const found = spawnSync(
+    'docker',
+    ['run', '--rm', '--entrypoint', 'sh', imageName, '-c', 'find / -name ".env" -not -path "*/node_modules/*" 2>/dev/null'],
+    { encoding: 'utf8' },
+  )
+
+  const leaked = (found.stdout ?? '').split('\n').map((line) => line.trim()).filter(Boolean)
+  if (leaked.length > 0) {
+    throw new Error(
+      `Образ несёт файлы окружения, которых в нём быть не должно: ${leaked.join(', ')}. Проверьте .dockerignore.`,
+    )
+  }
+
+  console.log('Docker smoke: в образе нет ни одного .env.')
+}
+
 try {
   run('docker', [...composeArgs, 'up', '-d', 'postgres_test'], { env: dockerEnv })
   await waitForComposePostgres()
@@ -171,6 +196,7 @@ try {
   })
 
   run('docker', ['build', '-f', 'backend/Dockerfile', '-t', imageName, '.'])
+  assertImageCarriesNoSecrets()
   spawnSync('docker', ['rm', '-f', containerName], { stdio: 'ignore' })
 
   run('docker', [

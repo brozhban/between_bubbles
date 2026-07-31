@@ -6,9 +6,16 @@ build
 coverage
 .git
 .scratch
+# Шаблоны сопоставляются от корня контекста, поэтому без `**/` под исключение попадал
+# только корневой `.env`, а `backend/.env` уезжал в образ вместе с ключами разработчика.
 .env
 .env.*
+**/.env
+**/.env.*
 !.env.example
+!**/.env.example
 webapp/e2e/.artifacts
 mobile/.maestro/reports
 *.log
+.DS_Store
+**/.DS_Store
