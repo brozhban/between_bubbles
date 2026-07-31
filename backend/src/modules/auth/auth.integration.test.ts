@@ -318,6 +318,8 @@ maybeDescribe('auth API integration', () => {
         ...env,
         CORS_ORIGINS: ['https://web.example.com'],
         COOKIE_SECURE: true,
+        // Прод-подобные cookie тесту нужны, настоящий провайдер почты — нет.
+        NODE_ENV: 'test' as const,
       },
       prisma,
     })
@@ -353,6 +355,8 @@ maybeDescribe('auth API integration', () => {
         ...env,
         CORS_ORIGINS: ['https://web.example.com'],
         COOKIE_SECURE: true,
+        // Прод-подобные cookie тесту нужны, настоящий провайдер почты — нет.
+        NODE_ENV: 'test' as const,
       },
       prisma,
     })

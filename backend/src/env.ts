@@ -245,6 +245,21 @@ function validateMailEnv(env: z.infer<typeof envSchema>, ctx: z.RefinementCtx) {
       message: 'RESEND_API_KEY is required when MAIL_FROM is set',
     })
   }
+
+}
+
+/**
+ * Нужна ли этому процессу настоящая почта.
+ *
+ * Проверка живёт не в схеме окружения, а рядом с созданием мейлера: письма шлёт только API,
+ * а фоновые задачи поднимаются с тем же `COOKIE_SECURE=true` и без почтовых переменных —
+ * требование в схеме уронило бы очистку корзины, удаление аккаунтов и бэкапы.
+ *
+ * `NODE_ENV=test` выведен из-под правила намеренно: docker-smoke поднимает контейнер с
+ * secure-cookie, чтобы проверить прод-подобное поведение, и настоящий провайдер там не нужен.
+ */
+export function requiresConfiguredMail(env: AppEnv): boolean {
+  return env.NODE_ENV !== 'test' && isProductionLikeRuntime(env)
 }
 
 function validateStorageEnv(env: z.infer<typeof envSchema>, ctx: z.RefinementCtx) {

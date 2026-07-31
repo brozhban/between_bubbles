@@ -40,11 +40,20 @@ export class BackupService {
     const rows: Record<string, number> = {}
     const tables: Record<string, unknown[]> = {}
 
-    for (const table of BACKUP_TABLES) {
-      const data = await this.readTable(table)
-      tables[table] = data
-      rows[table] = data.length
-    }
+    // Все двенадцать таблиц читаются в одном снимке. Без транзакции каждый запрос видит своё
+    // состояние базы, и регистрация между чтением `users` и `tasting_entries` даёт копию, где
+    // запись ссылается на отсутствующего пользователя: восстановление такой копии падает на
+    // внешнем ключе. Дневник работает круглосуточно, дамп идёт секунды — вопрос времени.
+    await this.deps.db.$transaction(
+      async (tx) => {
+        for (const table of BACKUP_TABLES) {
+          const data = await readTable(tx, table)
+          tables[table] = data
+          rows[table] = data.length
+        }
+      },
+      { isolationLevel: 'RepeatableRead' },
+    )
 
     const payload = {
       createdAt: this.deps.clock.now().toISOString(),
@@ -72,19 +81,23 @@ export class BackupService {
     }
     const restored: Record<string, number> = {}
 
-    for (const table of BACKUP_TABLES) {
-      const data = payload.tables[table] ?? []
-      if (data.length === 0) {
-        restored[table] = 0
-        continue
-      }
+    // Одной транзакцией: иначе отказ на середине оставит базу залитой наполовину — худшее
+    // состояние из возможных, потому что выглядит как рабочее.
+    await this.deps.db.$transaction(async (tx) => {
+      for (const table of BACKUP_TABLES) {
+        const data = payload.tables[table] ?? []
+        if (data.length === 0) {
+          restored[table] = 0
+          continue
+        }
 
-      await this.deps.db.$executeRawUnsafe(
-        `INSERT INTO "${table}" SELECT * FROM json_populate_recordset(NULL::"${table}", $1::json)`,
-        JSON.stringify(data),
-      )
-      restored[table] = data.length
-    }
+        await tx.$executeRawUnsafe(
+          `INSERT INTO "${table}" SELECT * FROM json_populate_recordset(NULL::"${table}", $1::json)`,
+          JSON.stringify(data),
+        )
+        restored[table] = data.length
+      }
+    })
 
     return restored
   }
@@ -102,11 +115,14 @@ export class BackupService {
     return expired.length
   }
 
-  private async readTable(table: BackupTable): Promise<unknown[]> {
-    const result = await this.deps.db.$queryRawUnsafe<Array<{ data: unknown[] }>>(
-      `SELECT coalesce(json_agg(t), '[]'::json) AS data FROM "${table}" t`,
-    )
+}
 
-    return result[0]?.data ?? []
-  }
+type RawQueryClient = Pick<DbClient, '$queryRawUnsafe'>
+
+async function readTable(db: RawQueryClient, table: BackupTable): Promise<unknown[]> {
+  const result = await db.$queryRawUnsafe<Array<{ data: unknown[] }>>(
+    `SELECT coalesce(json_agg(t), '[]'::json) AS data FROM "${table}" t`,
+  )
+
+  return result[0]?.data ?? []
 }

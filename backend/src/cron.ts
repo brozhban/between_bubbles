@@ -1,6 +1,6 @@
 import { createBackupModule } from './modules/backup'
-import { seedSystemAromaTags } from './modules/diary'
-import { deleteUserPhotoFiles } from './modules/photos'
+import { purgeExpiredTrash, seedSystemAromaTags } from './modules/diary'
+import { deletePhotoFiles, deleteUserPhotoFiles } from './modules/photos'
 import { createBackendRuntime, type BackendRuntime } from './runtime'
 
 type CronTask = (runtime: BackendRuntime, now: Date) => Promise<void>
@@ -37,12 +37,15 @@ const cronTasks = {
     })
     console.log(`Cron auth:sessions:cleanup removed ${count} stale sessions.`)
   },
-  'diary:trash:purge': async ({ prisma }, now) => {
+  'diary:trash:purge': async ({ env, prisma }, now) => {
     const cutoff = new Date(now.getTime() - RETENTION_DAYS * DAY_MS)
-    const { count } = await prisma.tastingEntry.deleteMany({
-      where: { deletedAt: { not: null, lt: cutoff } },
-    })
-    console.log(`Cron diary:trash:purge removed ${count} entries deleted before ${cutoff.toISOString()}.`)
+    // Через модуль дневника, а не сырым deleteMany: каскад унесёт строки фото, но не файлы
+    // в хранилище, и пустые недели остались бы висеть (ТЗ §7.6).
+    const { purgedEntries, photos } = await purgeExpiredTrash({ db: prisma, before: cutoff })
+    const removedFiles = await deletePhotoFiles({ env, photos })
+    console.log(
+      `Cron diary:trash:purge removed ${purgedEntries} entries and ${removedFiles} photo files deleted before ${cutoff.toISOString()}.`,
+    )
   },
   'accounts:purge': async ({ env, prisma }, now) => {
     const cutoff = new Date(now.getTime() - RETENTION_DAYS * DAY_MS)

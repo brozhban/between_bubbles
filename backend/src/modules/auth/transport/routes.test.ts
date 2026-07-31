@@ -6,6 +6,9 @@ import type { AppEnv } from '../../../env'
 
 const env: AppEnv = {
   PORT: 3000,
+  // Secure-cookie ниже включён ради прод-подобного поведения маршрутов; метка теста
+  // разрешает лог-мейлер, которого в проде быть не должно.
+  NODE_ENV: 'test',
   DATABASE_URL: 'postgresql://superuser:superpassword@localhost:54329/between_bubbles',
   JWT_SECRET: 'test-route-secret-at-least-thirty-two-chars-123',
   CORS_ORIGINS: ['https://web.example.com'],

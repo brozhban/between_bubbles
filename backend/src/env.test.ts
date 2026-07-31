@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 
-import { loadEnv } from './env'
+import { loadEnv, requiresConfiguredMail } from './env'
 
 describe('loadEnv', () => {
   test('parses defaults and comma-separated origins', () => {
@@ -98,6 +98,37 @@ describe('loadEnv', () => {
     expect(() => loadEnv({ ...productionBase, COOKIE_SECURE: 'false' })).toThrow('COOKIE_SECURE')
     expect(() => loadEnv({ ...productionBase, CORS_ORIGINS: 'http://web.example.com' }))
       .toThrow('CORS_ORIGINS')
+  })
+
+  test('requires configured mail in production, but not locally or under test', () => {
+    // Лог-мейлер печатает ссылку сброса пароля в stdout — это полный захват аккаунта для
+    // всех, кто видит логи. Фоновые задачи писем не шлют, поэтому запрет живёт в создании
+    // мейлера, а здесь проверяется только условие.
+    const base = {
+      DATABASE_URL: 'postgresql://superuser:superpassword@localhost:54329/between_bubbles',
+      JWT_SECRET: '0123456789abcdef'.repeat(4),
+      CORS_ORIGINS: 'https://web.example.com',
+    }
+
+    expect(
+      requiresConfiguredMail(loadEnv({ ...base, NODE_ENV: 'production', COOKIE_SECURE: 'true' })),
+    ).toBe(true)
+    expect(requiresConfiguredMail(loadEnv({ ...base, COOKIE_SECURE: 'true' }))).toBe(true)
+
+    // Локальная разработка: письма в лог — рабочий режим.
+    expect(
+      requiresConfiguredMail(
+        loadEnv({
+          DATABASE_URL: base.DATABASE_URL,
+          JWT_SECRET: 'local-development-secret-at-least-32-characters',
+        }),
+      ),
+    ).toBe(false)
+
+    // docker-smoke поднимает secure-cookie намеренно и настоящего провайдера не имеет.
+    expect(
+      requiresConfiguredMail(loadEnv({ ...base, COOKIE_SECURE: 'true', NODE_ENV: 'test' })),
+    ).toBe(false)
   })
 
   test('rejects unsafe production CORS origins', () => {

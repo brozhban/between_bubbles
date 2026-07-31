@@ -334,6 +334,46 @@ export function createPrismaDiaryRepository(db: DbClient): DiaryRepository {
 }
 
 /**
+ * Окончательная очистка корзины по всему дневнику — для фоновой задачи (ТЗ §7.6, §14).
+ *
+ * Отдельно от `purgeTrash`, потому что репозиторий принципиально работает в границах одного
+ * пользователя: обслуживающая задача идёт по всем сразу и не должна размывать этот инвариант.
+ *
+ * Возвращает фотографии, а не удаляет их сама: каскад унесёт строки `EntryPhoto`, но не
+ * объекты в хранилище — их обязан удалить вызывающий, иначе JPEG останутся навсегда без
+ * единой ссылки из базы, вопреки обещанию политики конфиденциальности.
+ */
+export async function purgeExpiredTrash(input: {
+  db: DbClient
+  before: Date
+}): Promise<{ purgedEntries: number; photos: PhotoRecord[] }> {
+  return input.db.$transaction(async (tx) => {
+    const entries = await tx.tastingEntry.findMany({
+      where: { deletedAt: { not: null, lt: input.before } },
+      select: { id: true, userId: true, weekId: true, photos: true },
+    })
+    if (entries.length === 0) return { purgedEntries: 0, photos: [] }
+
+    await tx.tastingEntry.deleteMany({
+      where: { id: { in: entries.map((entry) => entry.id) } },
+    })
+
+    // Недели без записей не должны оставаться: пользовательская очистка корзины их убирает,
+    // и фоновая обязана вести себя так же.
+    const weeks = new Map<string, string>()
+    for (const entry of entries) weeks.set(entry.weekId, entry.userId)
+    for (const [weekId, userId] of weeks) {
+      await dropEmptyWeek(tx, userId, weekId)
+    }
+
+    return {
+      purgedEntries: entries.length,
+      photos: entries.flatMap((entry) => entry.photos.map(toPhotoRecord)),
+    }
+  })
+}
+
+/**
  * Системные теги аромата доступны всем пользователям (ТЗ §5.3).
  *
  * Идемпотентно: `@@unique([userId, nameRu])` в PostgreSQL не ловит дубли системных тегов,

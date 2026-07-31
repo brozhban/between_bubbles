@@ -27,6 +27,31 @@ describe('image processor', () => {
     expect(Math.max(thumb.width, thumb.height)).toBe(THUMB_MAX_DIMENSION)
   })
 
+  test('rejects a decompression bomb before decoding it', async () => {
+    // Заголовок PNG на 6000×6000 без единого байта пиксельных данных. Отказ обязан
+    // наступить до `Jimp.read`: развернуть такой растр — 535 МБ на контейнере с 1 ГБ,
+    // то есть один запрос кладёт API для всех. Поэтому проверяем и скорость отказа.
+    const header = new Uint8Array(24)
+    header.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a], 0)
+    const view = new DataView(header.buffer)
+    view.setUint32(8, 13)
+    header.set([0x49, 0x48, 0x44, 0x52], 12)
+    view.setUint32(16, 6000)
+    view.setUint32(20, 6000)
+
+    const startedAt = performance.now()
+    await expect(processor.process(header)).rejects.toThrow(PhotoFailure)
+    expect(performance.now() - startedAt).toBeLessThan(100)
+  })
+
+  test('rejects an image whose header cannot be read at all', async () => {
+    // Сигнатура на месте, заголовка нет: без размеров пропускать нельзя, иначе битый
+    // заголовок становится способом обойти бюджет пикселей.
+    const signatureOnly = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])
+
+    await expect(processor.process(signatureOnly)).rejects.toThrow(PhotoFailure)
+  })
+
   test('never enlarges an image already smaller than the limits', async () => {
     const source = await makeJpeg(300, 200)
 

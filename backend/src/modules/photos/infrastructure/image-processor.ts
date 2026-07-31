@@ -4,7 +4,9 @@ import { PhotoFailure } from '../domain/errors'
 import {
   detectImageFormat,
   FULL_MAX_DIMENSION,
+  isWithinPixelBudget,
   isWithinUploadLimit,
+  readImageSize,
   THUMB_MAX_DIMENSION,
 } from '../domain/image'
 import type { ImageProcessor, ProcessedImage } from '../application/ports'
@@ -27,6 +29,16 @@ export function createJimpImageProcessor(): ImageProcessor {
       }
       if (detectImageFormat(bytes) === null) {
         throw new PhotoFailure('invalid_image', 'Only JPEG and PNG images are accepted')
+      }
+
+      // Размеры читаются до декодирования: `Jimp.read` разворачивает полный растр в память,
+      // и на этом шаге ограничивать уже поздно — процесс падает вместе со всем API.
+      const size = readImageSize(bytes)
+      if (size === null) {
+        throw new PhotoFailure('invalid_image', 'Image dimensions could not be read')
+      }
+      if (!isWithinPixelBudget(size)) {
+        throw new PhotoFailure('too_large', 'Image has too many pixels to process')
       }
 
       let image

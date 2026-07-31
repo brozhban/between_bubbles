@@ -1,5 +1,5 @@
 import type { DbClient } from '../../db'
-import type { AppEnv } from '../../env'
+import { requiresConfiguredMail, type AppEnv } from '../../env'
 import { AuthService } from './application/auth-service'
 import type { Clock, LogoutCleanup, ProjectUser } from './application/ports'
 import { toBaseUserDto } from './domain/user'
@@ -35,11 +35,26 @@ const systemClock: Clock = {
 
 const noLogoutCleanup: LogoutCleanup = () => undefined
 
-/** Настоящая отправка появляется вместе с ключом; без него письма видны только в логе. */
+/**
+ * Настоящая отправка появляется вместе с ключом; без него письма видны только в логе.
+ *
+ * В прод-подобном рантайме лог-мейлер запрещён и API не поднимается: он печатает тело письма
+ * целиком, вместе с одноразовой ссылкой сброса пароля — то есть полным доступом к аккаунту.
+ * Логи App Platform и любой сборщик логов доступны заметно шире, чем почтовый ящик, так что
+ * предупреждения в консоль здесь мало: падаем на старте.
+ */
 function createMailer(env: AppEnv) {
-  return env.RESEND_API_KEY && env.MAIL_FROM
-    ? createResendMailer({ apiKey: env.RESEND_API_KEY, from: env.MAIL_FROM })
-    : createLogMailer({ isProduction: env.NODE_ENV === 'production' })
+  if (env.RESEND_API_KEY && env.MAIL_FROM) {
+    return createResendMailer({ apiKey: env.RESEND_API_KEY, from: env.MAIL_FROM })
+  }
+
+  if (requiresConfiguredMail(env)) {
+    throw new Error(
+      'RESEND_API_KEY and MAIL_FROM are required in production: the log mailer would print password reset links to stdout',
+    )
+  }
+
+  return createLogMailer({ isProduction: env.NODE_ENV === 'production' })
 }
 
 export function createAuthModule({

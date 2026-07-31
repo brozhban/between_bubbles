@@ -5,7 +5,11 @@ import type { AuthHttpEnv } from '../auth'
 import { DiaryService, type EntryPhotos, type PhotoFileCleaner } from './application/diary-service'
 import type { Clock } from './application/ports'
 import { StoreService } from './application/store-service'
-import { createPrismaDiaryRepository, seedSystemAromaTags } from './infrastructure/diary-repository'
+import {
+  createPrismaDiaryRepository,
+  purgeExpiredTrash,
+  seedSystemAromaTags,
+} from './infrastructure/diary-repository'
 import { createPrismaStoreRepository } from './infrastructure/store-repository'
 import { createDiaryRoutes } from './transport/routes'
 
@@ -53,7 +57,7 @@ export function createDiaryModule({
   }
 }
 
-export { seedSystemAromaTags }
+export { purgeExpiredTrash, seedSystemAromaTags }
 /**
  * Нормализация названия магазина. Общий справочник живёт в дневнике, а админка ищет по нему
  * теми же правилами — иначе постмодерация не находила бы то, что видит пользователь (ТЗ §5.2).

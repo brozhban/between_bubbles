@@ -57,18 +57,34 @@ export async function deleteUserPhotoFiles(input: {
 }): Promise<number> {
   if (input.userIds.length === 0) return 0
 
-  const { store } = createObjectStore({ env: input.env, publicBackendUrl: '' })
   const photos = await input.db.entryPhoto.findMany({
     where: { userId: { in: [...input.userIds] } },
     select: { storageKey: true, thumbKey: true },
   })
 
-  for (const photo of photos) {
+  return deletePhotoFiles({ env: input.env, photos })
+}
+
+/**
+ * Удаляет объекты фото из хранилища по готовому списку ключей.
+ *
+ * Нужна фоновой очистке корзины (ТЗ §7.6): каскад убирает строки `EntryPhoto`, но файлы
+ * остаются, и без этого шага «удалённые записи стираются через 30 дней» перестаёт быть
+ * правдой для картинок — а это обещание записано и в `docs/STORAGE.md`, и в политике.
+ */
+export async function deletePhotoFiles(input: {
+  env: AppEnv
+  photos: ReadonlyArray<{ storageKey: string; thumbKey: string }>
+}): Promise<number> {
+  if (input.photos.length === 0) return 0
+
+  const { store } = createObjectStore({ env: input.env, publicBackendUrl: '' })
+  for (const photo of input.photos) {
     await store.delete(photo.storageKey)
     await store.delete(photo.thumbKey)
   }
 
-  return photos.length
+  return input.photos.length
 }
 
 export function createPhotoModule({
