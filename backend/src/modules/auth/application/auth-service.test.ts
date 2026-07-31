@@ -182,3 +182,52 @@ test('refresh returns the winning successor when another request wins the rotati
   expect(findCalls).toBe(2)
   expect(rotateCalls).toBe(1)
 })
+
+test('login verifies a password even when the address is not registered', async () => {
+  // Без этого короткое замыкание пропускало argon2id: ответ по неизвестному адресу приходил
+  // мгновенно, по существующему — через десятки миллисекунд, и разницы хватало, чтобы
+  // перебрать почты одним запросом на кандидата.
+  const verifiedHashes: string[] = []
+  const repository = {
+    findUserByEmail: async () => null,
+  } as unknown as AuthRepository
+
+  const service = new AuthService({
+    accessTokens: { sign: async () => 'access-token', verify: async () => ({ sub: '', email: '', sessionId: '' }) },
+    clock: { now: () => new Date('2026-01-01T00:00:00.000Z') },
+    logoutCleanup: async () => undefined,
+    notifications: silentNotifications,
+    oneTimeTokens: { create: () => 'one-time-token', hash: (token) => `hash:${token}` },
+    passwords: {
+      hash: async (password) => `argon2id:${password}`,
+      verify: async (_password, passwordHash) => {
+        verifiedHashes.push(passwordHash)
+        return false
+      },
+    },
+    projectUser: toBaseUserDto,
+    refreshReuseGraceSeconds: 10,
+    refreshTokenTtlDays: 30,
+    sessionAbsoluteTtlDays: 90,
+    refreshTokens: {
+      create: () => 'refresh-token',
+      hash: (token) => `hash:${token}`,
+      familyHash: (token) => `family:${token}`,
+      rotate: (token) => `successor:${token}`,
+    },
+    repository,
+  })
+
+  await expect(
+    service.login({ email: 'nobody@example.com', password: 'whatever-123456' }, {}),
+  ).rejects.toThrow('Invalid email or password')
+
+  expect(verifiedHashes).toHaveLength(1)
+  expect(verifiedHashes[0]).toStartWith('argon2id:absent-user-')
+
+  // Хеш-заглушка считается один раз на процесс, а не на каждый запрос.
+  await expect(
+    service.login({ email: 'someone-else@example.com', password: 'whatever-123456' }, {}),
+  ).rejects.toThrow('Invalid email or password')
+  expect(verifiedHashes[1]).toBe(verifiedHashes[0])
+})

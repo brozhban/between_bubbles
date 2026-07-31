@@ -9,19 +9,10 @@ import { useMemo } from 'react'
 
 import { useAuth } from '@/features/auth'
 import { DiaryApi, type WineListParams } from './api'
+import { diaryKeys } from './query-keys'
 
-export const diaryKeys = {
-  all: ['diary'] as const,
-  week: (date?: string) => ['diary', 'week', date ?? 'current'] as const,
-  entry: (entryId: string) => ['diary', 'entry', entryId] as const,
-  trash: () => ['diary', 'trash'] as const,
-  wines: (params: WineListParams) => ['diary', 'wines', params] as const,
-  wine: (wineId: string) => ['diary', 'wine', wineId] as const,
-  aromaTags: () => ['diary', 'aroma-tags'] as const,
-  share: (entryId: string) => ['diary', 'share', entryId] as const,
-  stats: (period: string) => ['diary', 'stats', period] as const,
-  stores: (query: string, country?: string) => ['diary', 'stores', query, country] as const,
-}
+export { diaryKeys } from './query-keys'
+
 
 export function useDiaryApi() {
   const { transport } = useAuth()

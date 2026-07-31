@@ -6,8 +6,9 @@ import {
   authQueryKeys,
   clearAuthenticatedSession,
   logoutAuthenticatedSession,
-  sessionQueryKeys,
 } from '../src/features/auth/queries'
+import { adminKeys } from '../src/features/admin/query-keys'
+import { diaryKeys } from '../src/features/diary/query-keys'
 
 const user = {
   id: 'user_1',
@@ -20,7 +21,10 @@ test('auth query helpers keep access token and session-scoped cache in sync', as
   const queryClient = new QueryClient()
   let accessToken: string | null = null
 
-  queryClient.setQueryData([...sessionQueryKeys.all, 'orders'], [{ id: 'old-order' }])
+  // Настоящие ключи продукта, а не выдуманный `['session','orders']`: иначе тест
+  // проходит и тогда, когда кэш дневника лежит вне сессионного префикса.
+  queryClient.setQueryData(diaryKeys.week(), { entries: [{ wineName: 'A private Saperavi' }] })
+  queryClient.setQueryData(adminKeys.stores({}), [{ id: 'store-1' }])
   queryClient.setQueryData(['public', 'plans'], [{ id: 'free' }])
 
   applyAuthenticatedSession(
@@ -37,7 +41,8 @@ test('auth query helpers keep access token and session-scoped cache in sync', as
   expect(accessToken).toBe('fresh-access-token')
   expect(queryClient.getQueryData(authQueryKeys.me())).toEqual({ user })
 
-  expect(queryClient.getQueryData([...sessionQueryKeys.all, 'orders'])).toBeUndefined()
+  expect(queryClient.getQueryData(diaryKeys.week())).toBeUndefined()
+  expect(queryClient.getQueryData(adminKeys.stores({}))).toBeUndefined()
 
   await clearAuthenticatedSession(queryClient, (nextAccessToken) => {
     accessToken = nextAccessToken
@@ -51,7 +56,7 @@ test('auth query helpers keep access token and session-scoped cache in sync', as
 test('failed server logout keeps the authenticated browser state intact', async () => {
   const queryClient = new QueryClient()
   let accessToken: string | null = 'active-access-token'
-  queryClient.setQueryData([...sessionQueryKeys.all, 'orders'], [{ id: 'order-1' }])
+  queryClient.setQueryData(diaryKeys.trash(), [{ id: 'entry-1' }])
 
   await expect(
     logoutAuthenticatedSession({
@@ -68,13 +73,13 @@ test('failed server logout keeps the authenticated browser state intact', async 
   ).rejects.toThrow('network unavailable')
 
   expect(accessToken).toBe('active-access-token')
-  expect(queryClient.getQueryData([...sessionQueryKeys.all, 'orders'])).toEqual([{ id: 'order-1' }])
+  expect(queryClient.getQueryData(diaryKeys.trash())).toEqual([{ id: 'entry-1' }])
 })
 
 test('stale logout completion cannot clear a newer session epoch', async () => {
   const queryClient = new QueryClient()
   let accessToken: string | null = 'new-session-access-token'
-  queryClient.setQueryData([...sessionQueryKeys.all, 'orders'], [{ id: 'order-1' }])
+  queryClient.setQueryData(diaryKeys.trash(), [{ id: 'entry-1' }])
 
   await logoutAuthenticatedSession({
     api: {
@@ -88,7 +93,7 @@ test('stale logout completion cannot clear a newer session epoch', async () => {
   })
 
   expect(accessToken).toBe('new-session-access-token')
-  expect(queryClient.getQueryData([...sessionQueryKeys.all, 'orders'])).toEqual([{ id: 'order-1' }])
+  expect(queryClient.getQueryData(diaryKeys.trash())).toEqual([{ id: 'entry-1' }])
 })
 
 test('session cleanup does not wait on the authenticated query it cancels', async () => {

@@ -1,3 +1,5 @@
+import { randomUUID } from 'node:crypto'
+
 import type { LoginRequest, RegisterPayload } from '@between-bubbles/contracts'
 
 import { AuthFailure } from '../domain/errors'
@@ -63,14 +65,34 @@ export class AuthService {
 
   async login(input: LoginRequest, metadata: SessionMetadata) {
     const user = await this.dependencies.repository.findUserByEmail(input.email)
-    if (
-      !user?.passwordHash ||
-      !(await this.dependencies.passwords.verify(input.password, user.passwordHash))
-    ) {
+
+    // Сверка пароля выполняется всегда, даже когда пользователя нет. Иначе короткое
+    // замыкание пропускает argon2id и ответ приходит мгновенно, а для существующего адреса
+    // — через десятки миллисекунд: этой разницы хватает, чтобы перебрать почты по одному
+    // запросу на кандидата, не угадывая пароль.
+    const passwordHash = user?.passwordHash ?? (await this.absentUserPasswordHash())
+    const passwordMatches = await this.dependencies.passwords.verify(input.password, passwordHash)
+
+    if (!user?.passwordHash || !passwordMatches) {
       throw new AuthFailure('invalid_credentials', 'Invalid email or password')
     }
 
     return this.issueSession(user, metadata)
+  }
+
+  /**
+   * Хеш несуществующего пользователя: считается один раз за процесс и ни с чем не совпадает.
+   *
+   * Ленивая инициализация вместо конструктора — чтобы стоимость не платили те, кто логином
+   * не пользуется; первый запрос по неизвестному адресу оплатит её однократно.
+   */
+  private absentUserPasswordHashPromise: Promise<string> | null = null
+
+  private absentUserPasswordHash(): Promise<string> {
+    this.absentUserPasswordHashPromise ??= this.dependencies.passwords.hash(
+      `absent-user-${randomUUID()}`,
+    )
+    return this.absentUserPasswordHashPromise
   }
 
   async refresh(refreshToken: string | undefined, metadata: SessionMetadata) {

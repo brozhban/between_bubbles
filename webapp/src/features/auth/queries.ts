@@ -11,11 +11,10 @@ import type {
   RegisterRequest,
 } from '@between-bubbles/contracts'
 
+import { sessionQueryKeys } from '@/platform/query-keys'
 import type { AuthApi } from './api'
 
-export const sessionQueryKeys = {
-  all: ['session'] as const,
-}
+export { sessionQueryKeys }
 
 export const authQueryKeys = {
   all: [...sessionQueryKeys.all, 'auth'] as const,

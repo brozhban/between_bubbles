@@ -1,5 +1,5 @@
 export { AuthApi } from './api'
-export { authQueryKeys } from './queries'
+export { authQueryKeys, sessionQueryKeys } from './queries'
 export { bootstrapAuthSession } from './bootstrap'
 export { AuthForm } from './components/AuthForm'
 export { EmailVerificationNotice } from './components/EmailVerificationNotice'

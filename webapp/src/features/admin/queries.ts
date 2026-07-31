@@ -3,11 +3,10 @@ import { useMemo } from 'react'
 
 import { useAuth } from '@/features/auth'
 import { AdminApi, type AdminStoreListParams } from './api'
+import { adminKeys } from './query-keys'
 
-export const adminKeys = {
-  all: ['admin'] as const,
-  stores: (params: AdminStoreListParams) => ['admin', 'stores', params] as const,
-}
+export { adminKeys } from './query-keys'
+
 
 export function useAdminApi() {
   const { transport } = useAuth()
