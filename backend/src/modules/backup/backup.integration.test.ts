@@ -4,6 +4,7 @@ import { createApp } from '../../app'
 import { createPrisma } from '../../db'
 import type { AppEnv } from '../../env'
 import { BackupService, type BackupStorage } from './index'
+import { CURRENT_TERMS_VERSION } from '@between-bubbles/contracts'
 
 const databaseUrl = process.env.TEST_DATABASE_URL
 
@@ -85,7 +86,7 @@ maybeDescribe('database backup integration', () => {
         displayName: 'Backup',
         password: 'quiet-cellar-42',
         birthDate: '1990-01-01',
-        acceptedTermsVersion: '2026-07-01',
+        acceptedTermsVersion: CURRENT_TERMS_VERSION,
       }),
     })
     const { accessToken } = await register.json()

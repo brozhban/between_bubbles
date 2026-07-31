@@ -4,6 +4,7 @@ import { AuthApi } from '../src/features/auth/api'
 import { bootstrapAuthSession } from '../src/features/auth/bootstrap'
 import { publishBrowserSessionState } from '../src/features/auth/session-coordinator'
 import { ApiRequestError } from '../src/platform/api'
+import { CURRENT_TERMS_VERSION } from '@between-bubbles/contracts'
 
 const originalFetch = globalThis.fetch
 
@@ -395,7 +396,7 @@ test('AuthApi preserves backend error status, code, and message', async () => {
       email: 'dupe@example.com',
       password: 'quiet-cellar-42',
       birthDate: '1990-01-01',
-      acceptedTermsVersion: '2026-07-01',
+      acceptedTermsVersion: CURRENT_TERMS_VERSION,
     }),
   ).rejects.toMatchObject({
     status: 409,

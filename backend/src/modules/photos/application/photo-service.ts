@@ -58,17 +58,25 @@ export class PhotoService {
       contentType: processed.mimeType,
     })
 
-    const record = await this.deps.repository.create({
-      userId: input.userId,
-      entryId: input.entryId,
-      kind: input.kind,
-      storageKey,
-      thumbKey,
-      width: processed.full.width,
-      height: processed.full.height,
-      sizeBytes: processed.sizeBytes,
-      mimeType: processed.mimeType,
-    })
+    // Если строка не записалась, объекты в хранилище остаются без единой ссылки из базы:
+    // найти их потом нечем — ключи собраны из идентификатора, которого нигде нет.
+    let record
+    try {
+      record = await this.deps.repository.create({
+        userId: input.userId,
+        entryId: input.entryId,
+        kind: input.kind,
+        storageKey,
+        thumbKey,
+        width: processed.full.width,
+        height: processed.full.height,
+        sizeBytes: processed.sizeBytes,
+        mimeType: processed.mimeType,
+      })
+    } catch (error) {
+      await this.removeFiles({ storageKey, thumbKey }).catch(() => undefined)
+      throw error
+    }
 
     return this.toDto(record)
   }

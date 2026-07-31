@@ -12,7 +12,7 @@ import { useTranslation } from '../use-translation'
  */
 const linkMarkerPattern = /(\{offer\}|\{privacy\})/
 
-export function ConsentLabel() {
+export function ConsentLabel({ id }: { id?: string }) {
   const { t, locale } = useTranslation()
 
   const links = {
@@ -21,7 +21,7 @@ export function ConsentLabel() {
   }
 
   return (
-    <Typography variant="bodySm" tone="muted">
+    <Typography id={id} variant="bodySm" tone="muted">
       {t('auth.consent')
         .split(linkMarkerPattern)
         .map((part, index) => {

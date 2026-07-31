@@ -1,5 +1,8 @@
 import { spawnSync } from 'node:child_process'
 import { createServer } from 'node:net'
+
+import { CURRENT_TERMS_VERSION } from '@between-bubbles/contracts'
+
 import {
   assertTestDatabaseUrl,
   composeEnv,
@@ -133,7 +136,7 @@ async function smokeAuthApi() {
       // Регистрация закрыта для младше 18 и требует согласия с офертой (ТЗ §14),
       // поэтому дымовой тест обязан слать те же поля, что и настоящая форма.
       birthDate: '1990-01-01',
-      acceptedTermsVersion: 'smoke',
+      acceptedTermsVersion: CURRENT_TERMS_VERSION,
     }),
   })
 

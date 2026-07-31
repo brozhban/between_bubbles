@@ -18,7 +18,29 @@ export const countryCodeSchema = z
   .toUpperCase()
   .regex(/^[A-Z]{2}$/, 'Country must be an ISO 3166-1 alpha-2 code')
 
-export const ianaTimezoneSchema = z.string().trim().min(1).max(64)
+/**
+ * Таймзона проверяется на пригодность, а не только на длину.
+ *
+ * Границы недель считаются через `Intl.DateTimeFormat` с этой зоной (ТЗ §6), и неизвестное
+ * значение роняет неделю, статистику и создание записей в 500 — навсегда, до ручной правки
+ * профиля, которую пользователь сделать уже не может: экран настроек тоже не открывается.
+ * Проверку делает сама среда: список зон живёт в ICU и обновляется вместе с ним.
+ */
+export const ianaTimezoneSchema = z
+  .string()
+  .trim()
+  .min(1)
+  .max(64)
+  .refine(isUsableTimezone, 'Unknown IANA time zone')
+
+function isUsableTimezone(timezone: string): boolean {
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: timezone })
+    return true
+  } catch {
+    return false
+  }
+}
 
 export const localeSchema = z.enum(['ru', 'en'])
 

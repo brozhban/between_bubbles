@@ -159,18 +159,30 @@ export function createPrismaDiaryRepository(db: DbClient): DiaryRepository {
     },
 
     async restoreEntry({ userId, entryId }) {
-      const restored = await db.tastingEntry.updateMany({
-        where: { id: entryId, userId, deletedAt: { not: null } },
-        data: { deletedAt: null },
-      })
-      if (restored.count === 0) return null
+      return db.$transaction(async (tx) => {
+        const restored = await tx.tastingEntry.updateMany({
+          where: { id: entryId, userId, deletedAt: { not: null } },
+          data: { deletedAt: null },
+        })
+        if (restored.count === 0) return null
 
-      const entry = await db.tastingEntry.findFirst({
-        where: { id: entryId, userId },
-        include: entryInclude,
-      })
+        const entry = await tx.tastingEntry.findFirst({
+          where: { id: entryId, userId },
+          include: entryInclude,
+        })
+        if (!entry) return null
 
-      return entry ? toEntryRecord(entry) : null
+        // Вино можно удалить, пока его единственные записи лежат в корзине: `deleteWine`
+        // считает только активные. Значит восстановленная запись показывала бы название
+        // вина, которого нет ни в «Моих винах», ни по прямой ссылке. Возвращаем и его —
+        // восстановление обещает вернуть запись целиком, а не наполовину.
+        await tx.wine.updateMany({
+          where: { id: entry.wineId, userId, deletedAt: { not: null } },
+          data: { deletedAt: null },
+        })
+
+        return toEntryRecord(entry)
+      })
     },
 
     async purgeEntry({ userId, entryId }) {

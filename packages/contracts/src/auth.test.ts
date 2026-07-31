@@ -15,6 +15,7 @@ import {
   tokenRefreshResponseSchema,
   type UserDto,
 } from './index'
+import { CURRENT_TERMS_VERSION } from './legal'
 
 const validUser: UserDto = {
   id: 'user_1',
@@ -42,7 +43,7 @@ describe('auth contracts', () => {
         displayName: ' Jane ',
         birthDate: adultBirthDate,
         timezone: 'Europe/Berlin',
-        acceptedTermsVersion: '2026-07-01',
+        acceptedTermsVersion: CURRENT_TERMS_VERSION,
       }),
     ).toEqual({
       email: 'user@example.com',
@@ -51,7 +52,7 @@ describe('auth contracts', () => {
       birthDate: adultBirthDate,
       timezone: 'Europe/Berlin',
       locale: 'ru',
-      acceptedTermsVersion: '2026-07-01',
+      acceptedTermsVersion: CURRENT_TERMS_VERSION,
     })
 
     expect(
@@ -60,7 +61,7 @@ describe('auth contracts', () => {
         password: 'quiet-cellar-42',
         displayName: '',
         birthDate: adultBirthDate,
-        acceptedTermsVersion: '2026-07-01',
+        acceptedTermsVersion: CURRENT_TERMS_VERSION,
       }),
     ).toEqual({
       email: 'user@example.com',
@@ -69,7 +70,7 @@ describe('auth contracts', () => {
       birthDate: adultBirthDate,
       timezone: 'Asia/Tbilisi',
       locale: 'ru',
-      acceptedTermsVersion: '2026-07-01',
+      acceptedTermsVersion: CURRENT_TERMS_VERSION,
     })
 
     expect(
@@ -90,7 +91,7 @@ describe('auth contracts', () => {
         password: 'short',
         displayName: 'A',
         birthDate: adultBirthDate,
-        acceptedTermsVersion: '2026-07-01',
+        acceptedTermsVersion: CURRENT_TERMS_VERSION,
       }),
     ).toThrow()
 
@@ -111,7 +112,7 @@ describe('auth contracts', () => {
         email: 'user@example.com',
         password: 'quiet-cellar-42',
         birthDate: under18.toISOString().slice(0, 10),
-        acceptedTermsVersion: '2026-07-01',
+        acceptedTermsVersion: CURRENT_TERMS_VERSION,
       }),
     ).toThrow()
 
@@ -213,4 +214,43 @@ describe('auth contracts', () => {
       }),
     ).toThrow()
   })
+})
+
+test('login accepts a password that the leak list would reject at registration', () => {
+  // Правило про утёкшие пароли принадлежит регистрации и смене пароля. На входе оно
+  // работало бы против уже зарегистрированных: пополнение списка заперло бы их снаружи,
+  // а починить это они смогли бы только восстановлением пароля.
+  const leaked = 'password2024'
+  expect(() =>
+    registerRequestSchema.parse({
+      email: 'user@example.com',
+      password: leaked,
+      birthDate: '1990-01-01',
+      acceptedTermsVersion: CURRENT_TERMS_VERSION,
+    }),
+  ).toThrow()
+
+  expect(loginRequestSchema.parse({ email: 'user@example.com', password: leaked })).toMatchObject({
+    password: leaked,
+  })
+})
+
+test('registration accepts only a published terms version', () => {
+  const payload = {
+    email: 'user@example.com',
+    password: 'quiet-cellar-42',
+    birthDate: '1990-01-01',
+  }
+
+  expect(() =>
+    registerRequestSchema.parse({ ...payload, acceptedTermsVersion: CURRENT_TERMS_VERSION }),
+  ).not.toThrow()
+
+  // Запись «принял версию smoke» юридически не значит ничего: такой редакции не было.
+  expect(() =>
+    registerRequestSchema.parse({ ...payload, acceptedTermsVersion: 'smoke' }),
+  ).toThrow()
+  expect(() =>
+    registerRequestSchema.parse({ ...payload, acceptedTermsVersion: '2019-01-01' }),
+  ).toThrow()
 })

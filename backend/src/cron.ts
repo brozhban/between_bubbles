@@ -79,8 +79,13 @@ const cronTasks = {
   'db:backup': async ({ env, prisma }) => {
     const backups = createBackupModule({ db: prisma, env })
     if (!backups) {
-      console.warn('Cron db:backup skipped: object storage is not configured.')
-      return
+      // Раньше здесь было предупреждение и успешный выход: задача «отработала», копии не
+      // было, и узнать об этом можно было только чтением логов. README подаёт эту копию как
+      // страховку от потери учётной записи провайдера — молчаливое отсутствие страховки
+      // хуже, чем её отсутствие с ошибкой. Локально задачу просто не запускают.
+      throw new Error(
+        'Cron db:backup requires object storage: set the SPACES_* group for this component.',
+      )
     }
 
     const { key, sizeBytes, rows } = await backups.create()

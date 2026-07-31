@@ -232,16 +232,12 @@ DigitalOcean App Platform supports non-routable worker components and scheduled 
 export DO_BACKEND_WORKER_ENABLED=true
 export DO_BACKEND_WORKER_RUN_COMMAND="bun run start:worker:real-handler"
 
-# Add the auth-session retention job for production.
-export DO_BACKEND_CRON_NAME=auth-session-cleanup
-export DO_BACKEND_CRON_TASK=auth:sessions:cleanup
-export DO_BACKEND_CRON_SCHEDULE="0 3 * * *"
-export DO_BACKEND_CRON_TIME_ZONE=UTC
-
 bun run deploy:do:specs backend-final
 ```
 
-Use worker components only after a real long-running handler exists. The generator requires `DO_BACKEND_WORKER_RUN_COMMAND` and refuses the template placeholder `bun run start:worker`, because that placeholder exits immediately and should not be deployed as an App Platform worker. Production auth should schedule `auth:sessions:cleanup`; it removes revoked sessions and sessions past either sliding or absolute lifetime only after `SESSION_RETENTION_DAYS`. Keep every schedule at DigitalOcean's supported cadence of at least 15 minutes. Both optional components use `backend/Dockerfile`, the repository-root build context, and the same managed PostgreSQL binding as the API. Add Spaces or other runtime secrets to those components when the specific background task needs them.
+**Do not schedule the product's own retention jobs this way.** `trash-purge`, `accounts-purge`, `sessions-cleanup`, and `db-backup` are written into every backend spec by the generator itself, because their timing is a promise in the privacy policy rather than a deployment setting (see `productCronJobs` in [../scripts/prepare-do-specs.mjs](../scripts/prepare-do-specs.mjs)). Adding `DO_BACKEND_CRON_TASK=auth:sessions:cleanup` on top creates a second component running the same task: double the money and two jobs deleting the same rows. Use `DO_BACKEND_CRON_*` only for a task that is genuinely deployment-specific.
+
+Use worker components only after a real long-running handler exists. The generator requires `DO_BACKEND_WORKER_RUN_COMMAND` and refuses the template placeholder `bun run start:worker`, because that placeholder exits immediately and should not be deployed as an App Platform worker. Keep every schedule at DigitalOcean's supported cadence of at least 15 minutes. Both optional components use `backend/Dockerfile`, the repository-root build context, and the same managed PostgreSQL binding as the API. Add Spaces or other runtime secrets to those components when the specific background task needs them.
 
 ## Real-Time And Horizontal Scaling
 

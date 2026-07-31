@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test'
 import { registerRequestSchema } from '@between-bubbles/contracts'
+import { CURRENT_TERMS_VERSION } from '@between-bubbles/contracts'
 
 describe('contracts', () => {
   test('normalizes auth registration payloads', () => {
@@ -8,7 +9,7 @@ describe('contracts', () => {
       password: 'quiet-cellar-42',
       displayName: '',
       birthDate: '1990-01-01',
-      acceptedTermsVersion: '2026-07-01',
+      acceptedTermsVersion: CURRENT_TERMS_VERSION,
     })
 
     expect(result).toEqual({
@@ -18,7 +19,7 @@ describe('contracts', () => {
       birthDate: '1990-01-01',
       timezone: 'Asia/Tbilisi',
       locale: 'ru',
-      acceptedTermsVersion: '2026-07-01',
+      acceptedTermsVersion: CURRENT_TERMS_VERSION,
     })
   })
 })

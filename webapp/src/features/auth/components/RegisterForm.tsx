@@ -39,6 +39,7 @@ export function RegisterForm({
   const birthDateId = useId()
   const birthDateErrorId = useId()
   const termsErrorId = useId()
+  const consentLabelId = useId()
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [formError, setFormError] = useState<string | null>(null)
 
@@ -202,6 +203,10 @@ export function RegisterForm({
               <div className="flex items-start gap-3">
                 <Checkbox
                   checked={field.state.value}
+                  // Единственный контроль, чья задача — зафиксировать осознанное согласие,
+                  // а скринридер объявлял его без имени: «checkbox, not checked». Имя берём
+                  // из самой подписи, а не дублируем текст в aria-label — иначе они разъедутся.
+                  aria-labelledby={consentLabelId}
                   aria-invalid={hasErrors(fieldErrors.acceptedTermsVersion)}
                   aria-describedby={errorId(
                     fieldErrors.acceptedTermsVersion,
@@ -215,7 +220,7 @@ export function RegisterForm({
                     setFormError(null)
                   }}
                 />
-                <ConsentLabel />
+                <ConsentLabel id={consentLabelId} />
               </div>
               <FieldError id={termsErrorId} errors={fieldErrors.acceptedTermsVersion} />
             </Field>

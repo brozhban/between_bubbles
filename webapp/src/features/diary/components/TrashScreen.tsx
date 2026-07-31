@@ -36,6 +36,20 @@ export function TrashScreen() {
     )
   }
 
+  // Ошибку нельзя показывать пустой корзиной: на экране обещано «восстановимо 30 дней»,
+  // и «Корзина пуста» здесь читается как «записи уже стёрлись». Неделя ведёт себя так же.
+  if (trash.isError) {
+    return (
+      <div className="grid gap-4 p-6" role="alert">
+        <Typography variant="screenTitle">{t('trash.failed')}</Typography>
+        <Typography tone="muted">{t('week.failedHint')}</Typography>
+        <OutlinedButton type="button" onClick={() => void trash.refetch()}>
+          {t('session.retry')}
+        </OutlinedButton>
+      </div>
+    )
+  }
+
   const items = trash.data?.items ?? []
 
   return (

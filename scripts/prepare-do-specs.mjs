@@ -171,6 +171,8 @@ if (target === 'website' || target === 'all') {
   // server islands, or other runtime-rendered routes need a runtime service instead.
   await writePreparedSpec('website-static-app.yaml.example', 'website-static-app.yaml', {
     ...commonReplacements(),
+    // Лендинг зовёт в дневник кнопкой; без его адреса она собралась бы на localhost.
+    'https://REPLACE_WITH_WEBAPP_DEFAULT_INGRESS': requiredUrlEnv('DO_WEBAPP_URL'),
     REPLACE_WITH_OPTIONAL_DOMAINS: optionalDomainsBlock(
       process.env.DO_WEBSITE_URL?.trim()
         ? normalizeHttpsUrl('DO_WEBSITE_URL', process.env.DO_WEBSITE_URL.trim())

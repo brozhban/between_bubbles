@@ -2,6 +2,7 @@ import { expect, test } from 'bun:test'
 
 import type { DbClient } from '../../../db'
 import { createPrismaAuthRepository } from './auth-repository'
+import { CURRENT_TERMS_VERSION } from '@between-bubbles/contracts'
 
 test('creates a password user and initial session inside one database transaction', async () => {
   const operations: string[] = []
@@ -40,7 +41,7 @@ test('creates a password user and initial session inside one database transactio
       birthDate: '1990-01-01',
       timezone: 'Asia/Tbilisi',
       locale: 'ru',
-      acceptedTermsVersion: '2026-07-01',
+      acceptedTermsVersion: CURRENT_TERMS_VERSION,
     },
     session: {
       refreshTokenHash: 'refresh-hash',

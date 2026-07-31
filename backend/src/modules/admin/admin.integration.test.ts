@@ -3,6 +3,7 @@ import { afterAll, beforeEach, describe, expect, test } from 'bun:test'
 import { createApp } from '../../app'
 import { createPrisma } from '../../db'
 import type { AppEnv } from '../../env'
+import { CURRENT_TERMS_VERSION } from '@between-bubbles/contracts'
 
 const databaseUrl = process.env.TEST_DATABASE_URL
 
@@ -56,7 +57,7 @@ maybeDescribe('admin API integration', () => {
         email,
         password: 'quiet-cellar-42',
         birthDate: '1990-01-01',
-        acceptedTermsVersion: '2026-07-01',
+        acceptedTermsVersion: CURRENT_TERMS_VERSION,
       }),
     })
     expect(response.status).toBe(201)

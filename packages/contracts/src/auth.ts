@@ -2,6 +2,7 @@ import { z } from 'zod'
 
 import { isAdultOn, todayInTimezone } from './age'
 import { ianaTimezoneSchema, isoDateSchema, localeSchema, themeSchema } from './common'
+import { PUBLISHED_TERMS_VERSIONS } from './legal'
 import { isCompromisedPassword } from './password-strength'
 import { currencySchema } from './vocabulary'
 
@@ -59,8 +60,12 @@ export const registerRequestSchema = z
     /** Определяется из браузера; задаёт границы недель (ТЗ §6). */
     timezone: ianaTimezoneSchema.optional().default('Asia/Tbilisi'),
     locale: localeSchema.optional().default('ru'),
-    /** Согласие с офертой и политикой фиксируется вместе с версией документа. */
-    acceptedTermsVersion: z.string().trim().min(1).max(32),
+    /**
+     * Согласие с офертой и политикой фиксируется вместе с версией документа (ТЗ §14).
+     * Принимается только опубликованная редакция: запись о согласии с несуществующей
+     * версией юридически ничего не значит.
+     */
+    acceptedTermsVersion: z.enum(PUBLISHED_TERMS_VERSIONS),
   })
   .superRefine((value, ctx) => {
     if (!isAdultOn(value.birthDate, todayInTimezone(value.timezone ?? 'Asia/Tbilisi'))) {
@@ -72,9 +77,18 @@ export const registerRequestSchema = z
     }
   })
 
+/**
+ * Вход проверяет только форму пароля, без списка утёкших.
+ *
+ * `passwordSchema` отбраковывает скомпрометированные пароли — это правило регистрации и
+ * смены пароля. На входе оно работает против пользователя: пополнение `COMMON_PASSWORDS`
+ * заперло бы снаружи тех, кто уже зарегистрирован со старым паролем, и починить это они
+ * могли бы только восстановлением. Ровно так же поступает `passwordChangeSchema` с текущим
+ * паролем в `profile.ts`.
+ */
 export const loginRequestSchema = z.object({
   email: emailSchema,
-  password: passwordSchema,
+  password: z.string().min(8).max(128),
 })
 
 /**

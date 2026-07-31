@@ -3,6 +3,7 @@ import { afterAll, beforeEach, describe, expect, test } from 'bun:test'
 import { createApp } from '../../app'
 import { createPrisma } from '../../db'
 import type { AppEnv } from '../../env'
+import { CURRENT_TERMS_VERSION } from '@between-bubbles/contracts'
 
 const databaseUrl = process.env.TEST_DATABASE_URL
 
@@ -52,7 +53,7 @@ maybeDescribe('auth API integration', () => {
         email: 'user@example.com',
         password: 'quiet-cellar-42',
         birthDate: '1990-01-01',
-        acceptedTermsVersion: '2026-07-01',
+        acceptedTermsVersion: CURRENT_TERMS_VERSION,
         displayName: 'User',
       }),
     })
@@ -144,7 +145,7 @@ maybeDescribe('auth API integration', () => {
         email: 'race@example.com',
         password: 'quiet-cellar-42',
         birthDate: '1990-01-01',
-        acceptedTermsVersion: '2026-07-01',
+        acceptedTermsVersion: CURRENT_TERMS_VERSION,
       }),
     })
     const registerBody = await register.json()
@@ -215,7 +216,7 @@ maybeDescribe('auth API integration', () => {
     const register = await app.request('/api/auth/token/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: 'reuse@example.com', password: 'quiet-cellar-42', birthDate: '1990-01-01', acceptedTermsVersion: '2026-07-01' }),
+      body: JSON.stringify({ email: 'reuse@example.com', password: 'quiet-cellar-42', birthDate: '1990-01-01', acceptedTermsVersion: CURRENT_TERMS_VERSION }),
     })
     const registered = await register.json()
     const refresh = await app.request('/api/auth/token/refresh', {
@@ -264,7 +265,7 @@ maybeDescribe('auth API integration', () => {
         email: 'web-cookie@example.com',
         password: 'quiet-cellar-42',
         birthDate: '1990-01-01',
-        acceptedTermsVersion: '2026-07-01',
+        acceptedTermsVersion: CURRENT_TERMS_VERSION,
       }),
     })
     const registerBody = await register.json()
@@ -333,7 +334,7 @@ maybeDescribe('auth API integration', () => {
         email: 'production-cookie@example.com',
         password: 'quiet-cellar-42',
         birthDate: '1990-01-01',
-        acceptedTermsVersion: '2026-07-01',
+        acceptedTermsVersion: CURRENT_TERMS_VERSION,
       }),
     })
     const registerBody = await register.json()
@@ -370,7 +371,7 @@ maybeDescribe('auth API integration', () => {
         email: 'csrf-cookie@example.com',
         password: 'quiet-cellar-42',
         birthDate: '1990-01-01',
-        acceptedTermsVersion: '2026-07-01',
+        acceptedTermsVersion: CURRENT_TERMS_VERSION,
       }),
     })
     const cookie = register.headers.get('set-cookie')!.split(';')[0]
@@ -766,7 +767,7 @@ maybeDescribe('auth API integration', () => {
       email: 'dupe@example.com',
       password: 'quiet-cellar-42',
         birthDate: '1990-01-01',
-        acceptedTermsVersion: '2026-07-01',
+        acceptedTermsVersion: CURRENT_TERMS_VERSION,
     }
 
     await app.request('/api/auth/register', {
@@ -798,7 +799,7 @@ maybeDescribe('auth API integration', () => {
       email: 'register-race@example.com',
       password: 'quiet-cellar-42',
         birthDate: '1990-01-01',
-        acceptedTermsVersion: '2026-07-01',
+        acceptedTermsVersion: CURRENT_TERMS_VERSION,
     }
 
     const [first, second] = await Promise.all([
@@ -835,7 +836,7 @@ maybeDescribe('auth API integration', () => {
         email,
         password: 'quiet-cellar-42',
         birthDate: '1990-01-01',
-        acceptedTermsVersion: '2026-07-01',
+        acceptedTermsVersion: CURRENT_TERMS_VERSION,
       }),
     })
     const registerBody = await register.json()

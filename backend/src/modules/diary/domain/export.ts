@@ -257,6 +257,19 @@ function toCsvRow(values: readonly string[]): string {
 }
 
 function escapeCsvValue(value: string): string {
-  if (!/[",\r\n]/.test(value)) return value
-  return `"${value.replaceAll('"', '""')}"`
+  const guarded = guardAgainstFormulaInjection(value)
+  if (!/[",\r\n]/.test(guarded)) return guarded
+  return `"${guarded.replaceAll('"', '""')}"`
+}
+
+/**
+ * Значение, начинающееся с `=`, `+`, `-` или `@`, Excel и Google Sheets открывают как формулу.
+ *
+ * В выгрузку попадают названия магазинов из общего справочника, то есть текст, который ввёл
+ * другой пользователь: без этого один человек мог бы прислать формулу в дневник другому.
+ * Апостроф перед значением — то, что понимают оба редактора, и он же виден в тексте как
+ * обычный символ, если файл читают не таблицей.
+ */
+function guardAgainstFormulaInjection(value: string): string {
+  return /^[=+\-@\t\r]/.test(value) ? `'${value}` : value
 }

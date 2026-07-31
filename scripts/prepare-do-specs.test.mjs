@@ -261,15 +261,17 @@ describe('prepare-do-specs', () => {
     expect(`${invalidDatabase.stdout}\n${invalidDatabase.stderr}`).toContain('DO_DB_NAME');
   });
 
-  test('generates a standalone website without requiring a webapp URL', () => {
-    const result = runPrepareSpecs(
-      { DO_WEBAPP_URL: undefined },
-      { target: 'website' },
-    );
+  test('builds the website landing with a real link into the diary', () => {
+    // Кнопка «Открыть дневник» — единственный вход в продукт с лендинга. Раньше тест
+    // фиксировал отсутствие PUBLIC_WEBAPP_URL, то есть закреплял сборку на localhost.
+    const missing = runPrepareSpecs({ DO_WEBAPP_URL: undefined }, { target: 'website' });
+    expect(missing.status).not.toBe(0);
+    expect(`${missing.stdout}\n${missing.stderr}`).toContain('DO_WEBAPP_URL');
 
-    expect(result.status).toBe(0);
+    expect(runPrepareSpecs({}, { target: 'website' }).status).toBe(0);
     const spec = readFileSync(resolve(specOutputDir, 'website-static-app.yaml'), 'utf8');
-    expect(spec).not.toContain('PUBLIC_WEBAPP_URL');
+    expect(spec).toContain('key: PUBLIC_WEBAPP_URL');
+    expect(spec).toContain('value: "https://webapp.example.com"');
   });
 
   test('points the webapp at the website so the consent checkbox can open the documents', () => {
