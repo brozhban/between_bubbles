@@ -37,9 +37,12 @@ import { IS_DRAFT, OPERATOR, field } from '../legal'
 
 	<h2>Правообладатель</h2>
 	<ul>
-		<li>Наименование: {field(OPERATOR.name, 'наименование правообладателя')}</li>
-		<li>Регистрационные данные: {field(OPERATOR.registration, 'идентификационный номер ИП')}</li>
-		<li>Адрес: {field(OPERATOR.address, 'адрес для юридически значимых сообщений')}</li>
+		<li>Наименование: {field(OPERATOR.name.ru, 'наименование правообладателя')}</li>
+		<li>
+			Регистрационные данные: идентификационный номер (Tax ID)
+			{' '}{field(OPERATOR.registration, 'идентификационный номер ИП')}
+		</li>
+		<li>Адрес: {field(OPERATOR.address.ru, 'адрес для юридически значимых сообщений')}</li>
 		<li>
 			Почта: <a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'адрес для обращений')}</a>
 		</li>

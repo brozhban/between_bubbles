@@ -1,17 +1,29 @@
 ---
 import Page from '../../layouts/Page.astro'
-import { OPERATOR, field } from '../../legal'
+import { IS_DRAFT, OPERATOR, field } from '../../legal'
 ---
 
 <Page
 	title="Contacts — Between Bubbles"
 	description="How to reach the Between Bubbles team."
+	noindex={IS_DRAFT}
 	longform
 	lang="en"
 	alternatePath="/contacts"
 >
 	<p class="eyebrow">Legal</p>
 	<h1>Contacts</h1>
+
+	{
+		IS_DRAFT && (
+			<div class="notice">
+				<p style="margin: 0">
+					<strong>Draft.</strong> The rightholder's details have not been confirmed yet and
+					are shown in square brackets.
+				</p>
+			</div>
+		)
+	}
 
 	<h2>Support</h2>
 	<p>
@@ -27,9 +39,9 @@ import { OPERATOR, field } from '../../legal'
 
 	<h2>Rightholder</h2>
 	<ul>
-		<li>Name: {field(OPERATOR.name, 'operator name')}</li>
-		<li>Registration: {field(OPERATOR.registration, 'operator tax id')}</li>
-		<li>Address: {field(OPERATOR.address, 'operator address')}</li>
+		<li>Name: {field(OPERATOR.name.en, 'operator name')}</li>
+		<li>Registration: Tax ID {field(OPERATOR.registration, 'operator tax id')}</li>
+		<li>Address: {field(OPERATOR.address.en, 'operator address')}</li>
 		<li>
 			Email: <a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'contact email address')}</a>
 		</li>

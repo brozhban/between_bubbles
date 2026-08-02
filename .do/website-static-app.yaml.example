@@ -20,7 +20,8 @@ static_sites:
         value: "${_self.PUBLIC_URL}"
         scope: BUILD_TIME
         type: GENERAL
-      # Кнопка «Открыть дневник» на лендинге; без этого она собирается на localhost.
+      # Кнопка «Открыть дневник» на лендинге и хост, который оферта называет в предмете
+      # договора; без этого и то и другое собирается на localhost.
       - key: PUBLIC_WEBAPP_URL
         value: "https://REPLACE_WITH_WEBAPP_DEFAULT_INGRESS"
         scope: BUILD_TIME

@@ -1,6 +1,6 @@
 ---
 import Page from '../layouts/Page.astro'
-import { IS_DRAFT, OPERATOR, TERMS_DATE_LABEL, TERMS_VERSION, field } from '../legal'
+import { IS_DRAFT, OPERATOR, TERMS_DATE_LABEL, TERMS_VERSION, VENUE, field } from '../legal'
 
 /**
  * Политика конфиденциальности. Состав данных, сроки и подрядчики описаны по реализации:
@@ -20,7 +20,7 @@ import { IS_DRAFT, OPERATOR, TERMS_DATE_LABEL, TERMS_VERSION, field } from '../l
 >
 	<p class="eyebrow">Правовая информация</p>
 	<h1>Политика конфиденциальности</h1>
-	<p class="version">Редакция от {TERMS_DATE_LABEL} · версия {TERMS_VERSION}</p>
+	<p class="version">Редакция от {TERMS_DATE_LABEL.ru} · версия {TERMS_VERSION}</p>
 
 	{
 		IS_DRAFT && (
@@ -37,13 +37,13 @@ import { IS_DRAFT, OPERATOR, TERMS_DATE_LABEL, TERMS_VERSION, field } from '../l
 
 	<h2>1. Кто обрабатывает данные</h2>
 	<p>
-		Оператор — {field(OPERATOR.name, 'наименование правообладателя')}
-		{' '}({field(OPERATOR.registration, 'идентификационный номер ИП')}), зарегистрированный
-		по адресу: {field(OPERATOR.address, 'адрес оператора')}. Обращения по любым вопросам
-		о данных принимаются на электронную почту:
+		Оператор — {field(OPERATOR.name.ru, 'наименование правообладателя')}
+		{' '}(идентификационный номер (Tax ID) {field(OPERATOR.registration, 'идентификационный номер ИП')}),
+		зарегистрированный по адресу: {field(OPERATOR.address.ru, 'адрес оператора')}. Обращения
+		по любым вопросам о данных принимаются на электронную почту:
 		{' '}<a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'адрес для обращений')}</a>.
 		Обработка ведётся в соответствии с законодательством
-		{' '}{field(OPERATOR.jurisdiction, 'страна применимого права')}.
+		{' '}{field(VENUE.jurisdiction.ru, 'страна применимого права')}.
 	</p>
 	<p>
 		Основание обработки — исполнение договора, который вы заключаете, принимая оферту, и

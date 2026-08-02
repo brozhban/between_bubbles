@@ -222,7 +222,7 @@ function printUsage() {
   console.error('  backend-initial: JWT_SECRET')
   console.error('  backend-final: JWT_SECRET, DO_BACKEND_URL, DO_WEBAPP_URL, DO_AUTH_SITE_DOMAIN')
   console.error('  webapp: DO_BACKEND_URL, DO_WEBAPP_URL, DO_WEBSITE_URL, DO_AUTH_SITE_DOMAIN')
-  console.error('  website: no target-specific values')
+  console.error('  website: DO_WEBAPP_URL')
   console.error(
     '  all: JWT_SECRET, DO_BACKEND_URL, DO_WEBAPP_URL, DO_WEBSITE_URL, DO_AUTH_SITE_DOMAIN',
   )

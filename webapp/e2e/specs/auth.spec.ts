@@ -19,7 +19,9 @@ test('blocks registration under 18 and without consent', async ({ page }) => {
   )
 
   // Галочка не проставлена заранее: явное согласие требуют и грузинский закон, и GDPR.
-  await expect(page.getByRole('checkbox')).not.toBeChecked()
+  // Имя роли — сам текст согласия: без него скринридер читает «флажок» без предмета,
+  // то есть согласие перестаёт быть осознанным.
+  await expect(page.getByRole('checkbox', { name: /принимаю оферту/ })).not.toBeChecked()
 
   // Без галочки согласия дальше не пускает — и объясняет причину человеческим текстом.
   await page.getByRole('button', { name: 'Создать аккаунт' }).click()

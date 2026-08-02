@@ -125,6 +125,9 @@ export JWT_SECRET="$(openssl rand -hex 32)"
 export DO_AUTH_SITE_DOMAIN=example.com
 export DO_BACKEND_URL=https://api.example.com
 export DO_WEBAPP_URL=https://app.example.com
+# Required for the webapp and all targets: the registration consent checkbox links to the
+# legal documents hosted on website, and the address is baked into the webapp bundle.
+export DO_WEBSITE_URL=https://example.com
 # Optional when website/admin or another browser origin also calls the API:
 # export DO_ADDITIONAL_CORS_ORIGINS=https://website.example.com,https://admin.example.com
 # Optional store directory administrators (ТЗ §2); without it the admin screens stay hidden:
@@ -171,6 +174,23 @@ doctl apps create --spec .scratch/deploy/webapp-static-app.yaml
 bun run deploy:do:specs backend-final
 doctl apps spec validate .scratch/deploy/backend-app.yaml >/dev/null
 doctl apps update <backend-app-id> --spec .scratch/deploy/backend-app.yaml
+
+# 5. Re-run whenever the webapp address becomes final or later changes: the offer names
+#    that host in its subject clause and bakes it in at build time. `website` never
+#    requires DO_WEBAPP_URL — that would deadlock step 2 against step 3, because the
+#    webapp build in turn requires DO_WEBSITE_URL — so an unset value silently leaves
+#    the published offer naming the fallback host from website/src/legal.ts.
+#
+#    Export BOTH variables in the shell that regenerates the spec. `doctl apps update`
+#    replaces the whole spec, and DO_WEBSITE_URL is what emits the `domains:` block: a
+#    re-run without it silently strips the site's custom domain, which moves the legal
+#    pages to the ondigitalocean.app host — the one address the already-built webapp
+#    bundle does not link to.
+export DO_WEBSITE_URL=https://example.com
+export DO_WEBAPP_URL=https://app.example.com
+bun run deploy:do:specs website
+doctl apps spec validate .scratch/deploy/website-static-app.yaml >/dev/null
+doctl apps update <website-app-id> --spec .scratch/deploy/website-static-app.yaml
 ```
 
 Generated specs are written with owner-only `0600` permissions because the backend spec contains `JWT_SECRET`. Keep validation output redirected, never attach the spec to logs or support tickets, and delete `.scratch/deploy/backend-app.yaml` after the create/update operation when it is no longer needed.
@@ -300,7 +320,7 @@ Required component shape (static build):
 - Required build-time canonical origin: `PUBLIC_WEBSITE_URL=${_self.PUBLIC_URL}` in the generated App Platform spec, or the concrete public origin on another provider.
 - Optional build-time public config only when the website intentionally needs it, such as `PUBLIC_WEBAPP_URL=https://webapp.example.com`.
 
-Keep website independent from authenticated browser-app flows unless the product explicitly needs shared API data. The baseline website spec therefore does not require `PUBLIC_WEBAPP_URL`; add it as explicit build-time public config only when the product actually links to a separate webapp, then redeploy website after it changes.
+Keep website independent from authenticated browser-app flows unless the product explicitly needs shared API data. The baseline website spec therefore does not require `PUBLIC_WEBAPP_URL`: the generator writes it into the website spec only when `DO_WEBAPP_URL` is set, and omits it otherwise, so the first website deployment does not have to wait for the webapp to exist. In this project the offer names the webapp host in its subject clause, so run `bun run deploy:do:specs website` again with `DO_WEBAPP_URL` and redeploy website once the webapp has an address, and after every later change to it — until then the document prints the fallback host baked into `website/src/legal.ts`.
 
 ## Managed PostgreSQL
 

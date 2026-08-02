@@ -1,6 +1,13 @@
 ---
 import Page from '../../layouts/Page.astro'
-import { IS_DRAFT, OPERATOR, TERMS_DATE_LABEL_EN, TERMS_VERSION, field } from '../../legal'
+import {
+	IS_DRAFT,
+	OPERATOR,
+	TERMS_DATE_LABEL,
+	TERMS_VERSION,
+	VENUE,
+	field,
+} from '../../legal'
 
 /**
  * Английская политика конфиденциальности.
@@ -21,16 +28,30 @@ import { IS_DRAFT, OPERATOR, TERMS_DATE_LABEL_EN, TERMS_VERSION, field } from '.
 >
 	<p class="eyebrow">Legal</p>
 	<h1>Privacy Policy</h1>
-	<p class="version">Last updated: {TERMS_DATE_LABEL_EN} · Version: {TERMS_VERSION}</p>
+	<p class="version">Last updated: {TERMS_DATE_LABEL.en} · Version: {TERMS_VERSION}</p>
+
+	{
+		IS_DRAFT && (
+			<div class="notice">
+				<p style="margin: 0">
+					<strong>Draft.</strong> The data inventory, retention periods and the list of
+					processors describe the implementation and are accurate. The operator's details
+					have not been confirmed yet and are shown in square brackets; until they are
+					filled in and the text is reviewed by a lawyer, this document has no legal force.
+				</p>
+			</div>
+		)
+	}
 
 	<h2>1. Who Processes the Data</h2>
 	<p>
-		The Data Controller is {field(OPERATOR.name, 'operator name')}
-		{' '}({field(OPERATOR.registration, 'operator tax id')}), registered at:
-		{' '}{field(OPERATOR.address, 'operator address')}. Inquiries regarding any data-related
+		The Data Controller is {field(OPERATOR.name.en, 'operator name')}
+		{' '}(Tax ID {field(OPERATOR.registration, 'operator tax id')}), registered at:
+		{' '}{field(OPERATOR.address.en, 'operator address')}. Inquiries regarding any data-related
 		matters are accepted via email at:
 		{' '}<a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'contact email address')}</a>.
-		Data processing is conducted in accordance with the legislation of Georgia.
+		Data processing is conducted in accordance with the legislation of
+		{' '}{field(VENUE.jurisdiction.en, 'governing law country')}.
 	</p>
 	<p>
 		The legal basis for processing is the performance of the contract you enter into by

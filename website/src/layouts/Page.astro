@@ -5,6 +5,8 @@
  * Палитра и типографика повторяют DESIGN.md, но живут здесь автономно: website не тянет
  * стили из webapp, иначе статическая сборка зависела бы от клиентского пайплайна.
  */
+import type { Locale } from '@between-bubbles/contracts'
+
 interface Props {
 	title: string
 	description: string
@@ -12,12 +14,10 @@ interface Props {
 	/** Страница-документ: её читают целиком, а не просматривают. */
 	longform?: boolean
 	/** Язык страницы. Правовые документы существуют в двух версиях (рекомендация юриста). */
-	lang?: Language
+	lang?: Locale
 	/** Адрес той же страницы на другом языке, если он есть. */
 	alternatePath?: string
 }
-
-type Language = 'ru' | 'en'
 
 /**
  * Подписи навигации. Отдельного словаря i18n у статического сайта нет и не нужно:
@@ -43,7 +43,7 @@ const navigation = {
 		],
 		switchTo: 'Русская версия',
 	},
-} satisfies Record<Language, unknown>
+} satisfies Record<Locale, unknown>
 
 const {
 	title,
@@ -57,10 +57,19 @@ const publicWebsiteUrl = import.meta.env.PUBLIC_WEBSITE_URL
 const canonicalUrl = publicWebsiteUrl
 	? new URL(Astro.url.pathname, publicWebsiteUrl).toString()
 	: undefined
+/**
+ * Astro собирает каталожные маршруты (`/offer/index.html`), поэтому canonical всегда со
+ * слэшем на конце. hreflang обязан называть именно canonical-адрес другой версии: пара
+ * проверяется взаимно, а адрес без слэша — это редирект, а не канон.
+ *
+ * Без известного публичного origin тег не выводим совсем: относительный `hreflang` невалиден,
+ * а рядом стоящий canonical в этом случае тоже отсутствует.
+ */
 const alternateUrl =
 	alternatePath && publicWebsiteUrl
-		? new URL(alternatePath, publicWebsiteUrl).toString()
-		: alternatePath
+		? new URL(alternatePath.endsWith('/') ? alternatePath : `${alternatePath}/`, publicWebsiteUrl)
+				.toString()
+		: undefined
 const nav = navigation[lang]
 ---
 
@@ -177,7 +186,7 @@ const nav = navigation[lang]
 			 * Приглушённый оттенок из DESIGN.md рассчитан на короткие подписи лендинга и на
 			 * странице документа даёт слабый контраст в тёмной теме.
 			 */
-			.longform p,
+			.longform p:not(.eyebrow),
 			.longform li {
 				color: var(--text);
 			}

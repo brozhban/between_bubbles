@@ -105,8 +105,14 @@
   через `VITE_WEBSITE_URL`, поэтому `deploy:do:specs webapp` теперь требует `DO_WEBSITE_URL`.
   Документы существуют на двух языках: русские в корне, английские под `/en`, со ссылками
   друг на друга и `hreflang`. Ссылка из галочки согласия выбирается по языку интерфейса —
-  согласие на английском под русским текстом означало бы согласие с непрочитанным.
-  Реквизиты, версия и дата у обеих версий общие: их печатает один и тот же `legal.ts`.
+  согласие на английском под русским текстом означало бы согласие с непрочитанным. **Пока
+  это правило работает вхолостую:** язык приходит из профиля, а до входа профиля нет, поэтому
+  на регистрации он всегда русский и все соглашаются с русскими документами. Английская ветка
+  готова к появлению переключателя языка до входа, но сама его не добавляет.
+  Реквизиты, версия, дата, применимое право и подсудность у обеих версий общие: их печатает
+  один и тот же `legal.ts`. Всё, что различает языковые версии по существу, лежит там парой
+  `{ ru, en }` — факт, повторённый прозой на второй странице, рано или поздно разойдётся
+  с первой, а это уже два разных договора.
 
 ## Продакшен
 
@@ -148,6 +154,18 @@ DNS живёт в Cloudflare без прокси (серое облако). Ес
 для генерации (домены, имена ресурсов, ключи) лежат в `.scratch/deploy.env` — эта папка
 исключена из git. Порядок обновления: `bun run deploy:do:specs backend-final`, затем
 `doctl apps update <id> --spec .scratch/deploy/backend-app.yaml`.
+
+**Если релиз добавляет или меняет переменную сборки, спеку нужно обновить до пуша
+в `production`.** Пуш пересобирает приложение из спеки, которая уже лежит в App Platform, —
+новая переменная из репозитория туда не попадает. Сейчас это касается `VITE_WEBSITE_URL`
+у дневника: без неё галочка согласия вела бы на `localhost`, поэтому продакшен-сборка
+webapp падает без этой переменной (см. [webapp/vite.config.ts](webapp/vite.config.ts)).
+Порядок для такого релиза:
+
+```bash
+bun run deploy:do:specs webapp
+doctl apps update 08b07e97-5c62-46ad-85eb-4edb883e3670 --spec .scratch/deploy/webapp-static-app.yaml
+```
 
 
 ### Идентификаторы ресурсов
@@ -199,6 +217,11 @@ doctl apps list-deployments 25ea6f49-9712-4edf-a8d7-1e08ebfe74c1 --format ID,Pha
   [packages/contracts/src/legal.ts](packages/contracts/src/legal.ts) — и в русской, и в
   английской версии сразу: иначе согласие в базе будет ссылаться на редакцию, которую
   пользователь не видел.
+- **Оферта (§12) и политика (§11) обещают уведомлять об изменении условий по почте, а рассылки
+  нет.** Бэкенд шлёт только письма о пароле и подтверждении почты, и записанную при регистрации
+  `termsVersion` никто потом не перечитывает. До первой правки документов по существу это
+  ничего не нарушает, но поднятая версия — ровно тот случай, который текст описывает. Нужна
+  либо рассылка, либо экран с повторным согласием при расхождении версий.
 
 ## Этап 2
 
@@ -430,10 +453,13 @@ bun run dev:website
 
 Website-only setups can skip backend/PostgreSQL. A webapp-only project can skip it only after replacing or removing the included auth golden path; the committed webapp's register/login/session journey intentionally requires the backend.
 
-Create `webapp/.env` when the browser client should use a non-default API URL:
+Create `webapp/.env` when the browser client should use a non-default API URL, or a non-default
+website origin — the registration consent checkbox links to the legal documents hosted there,
+and a production build fails without it:
 
 ```bash
 VITE_API_URL=http://localhost:3000
+VITE_WEBSITE_URL=http://localhost:4321
 ```
 
 Test runners use the separate Docker Compose `postgres_test` service and the `TEST_DATABASE_URL` shape from `.env.example`/`backend/.env.example`. Webapp Playwright E2E starts `postgres_test`, applies migrations to `between_bubbles_test`, runs the browser flow, and tears down its test database volume by default.

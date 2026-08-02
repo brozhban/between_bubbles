@@ -1,5 +1,6 @@
 {
   "extends": "astro/tsconfigs/strict",
   "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist"]
+  "//": "tests лежат вне проверки типов сайта, как и в webapp: astro check не знает типов bun:test, а сами тесты гоняет `bun run test:website`.",
+  "exclude": ["dist", "tests"]
 }

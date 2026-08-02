@@ -266,11 +266,11 @@ Use shared CDN caching only for anonymous, public-equivalent website responses. 
 Build locally or in CI:
 
 ```bash
-VITE_API_URL=https://api.example.com bun run build:webapp
-PUBLIC_WEBSITE_URL=https://www.example.com bun run build:website
+VITE_API_URL=https://api.example.com VITE_WEBSITE_URL=https://www.example.com bun run build:webapp
+PUBLIC_WEBSITE_URL=https://www.example.com PUBLIC_WEBAPP_URL=https://app.example.com bun run build:website
 ```
 
-Both values are embedded at build time. `VITE_API_URL` must point to the API Gateway custom host. `PUBLIC_WEBSITE_URL` must be the public canonical origin of the website; without it, the generated pages intentionally omit canonical and `og:url` metadata. Rebuild after either origin changes. Add `PUBLIC_WEBAPP_URL` only when the public website intentionally links to the authenticated webapp.
+All of these values are embedded at build time. `VITE_API_URL` must point to the API Gateway custom host. `VITE_WEBSITE_URL` must be the public origin of the website: the registration consent checkbox links to the offer and privacy policy hosted there, so the webapp production build fails without it rather than shipping links to `localhost` (see [../webapp/vite.config.ts](../webapp/vite.config.ts)). `PUBLIC_WEBSITE_URL` must be the public canonical origin of the website; without it, the generated pages intentionally omit canonical and `og:url` metadata. `PUBLIC_WEBAPP_URL` is what the offer names as the application host in its subject clause; without it that document keeps the fallback host from [../website/src/legal.ts](../website/src/legal.ts). Rebuild both after any of these origins change.
 
 Before uploading, create a Yandex Object Storage static access key for a service account and configure the AWS CLI with it. Yandex's Object Storage docs recommend `aws configure` with the static key and `ru-central1` as the region.
 

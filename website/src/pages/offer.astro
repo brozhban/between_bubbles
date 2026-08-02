@@ -1,6 +1,15 @@
 ---
 import Page from '../layouts/Page.astro'
-import { IS_DRAFT, OPERATOR, TERMS_DATE_LABEL, TERMS_VERSION, field } from '../legal'
+import {
+	IS_DRAFT,
+	OPERATOR,
+	TERMS_DATE_LABEL,
+	TERMS_VERSION,
+	VENUE,
+	WEBAPP_HOST,
+	WEBSITE_HOST,
+	field,
+} from '../legal'
 
 /**
  * Оферта. Технические факты (акцепт, 18+, состав публикации, сроки удаления) описаны по
@@ -9,18 +18,6 @@ import { IS_DRAFT, OPERATOR, TERMS_DATE_LABEL, TERMS_VERSION, field } from '../l
  * Пока реквизиты не заполнены, страница остаётся черновиком и закрыта от индексации:
  * незаполненный документ не должен попасть ни в выдачу, ни в чьё-то согласие.
  */
-
-const websiteHost = hostOf(import.meta.env.PUBLIC_WEBSITE_URL, 'winesdiary.com')
-const webappHost = hostOf(import.meta.env.PUBLIC_WEBAPP_URL, 'app.winesdiary.com')
-
-function hostOf(url: string | undefined, fallback: string) {
-	if (!url) return fallback
-	try {
-		return new URL(url).host
-	} catch {
-		return fallback
-	}
-}
 ---
 
 <Page
@@ -32,7 +29,7 @@ function hostOf(url: string | undefined, fallback: string) {
 >
 	<p class="eyebrow">Правовая информация</p>
 	<h1>Публичная оферта</h1>
-	<p class="version">Редакция от {TERMS_DATE_LABEL} · версия {TERMS_VERSION}</p>
+	<p class="version">Редакция от {TERMS_DATE_LABEL.ru} · версия {TERMS_VERSION}</p>
 
 	{
 		IS_DRAFT && (
@@ -49,14 +46,14 @@ function hostOf(url: string | undefined, fallback: string) {
 
 	<h2>1. Стороны и предмет</h2>
 	<p>
-		Настоящий документ — публичная оферта {field(OPERATOR.name, 'наименование правообладателя')}{' '}
+		Настоящий документ — публичная оферта {field(OPERATOR.name.ru, 'наименование правообладателя')}{' '}
 		(далее — Правообладатель), адресованная любому дееспособному совершеннолетнему физическому
 		лицу (далее — Пользователь), заключить договор об использовании сервиса Between Bubbles
 		на изложенных ниже условиях.
 	</p>
 	<p>
 		Сервис — веб-приложение «Between Bubbles»: личный дневник дегустаций вина, доступный
-		на сайте {websiteHost} и в приложении {webappHost}. Сервис предназначен для личного
+		на сайте {WEBSITE_HOST} и в приложении {WEBAPP_HOST}. Сервис предназначен для личного
 		некоммерческого использования: учёта того, что Пользователь пробовал, и собственных
 		впечатлений.
 	</p>
@@ -203,18 +200,21 @@ function hostOf(url: string | undefined, fallback: string) {
 
 	<h2>13. Применимое право и споры</h2>
 	<p>
-		К настоящему договору применяется право {field(OPERATOR.jurisdiction, 'страна применимого права')}.
+		К настоящему договору применяется право {field(VENUE.jurisdiction.ru, 'страна применимого права')}.
 		Стороны разрешают споры путём переписки: обращение направляется на
 		{' '}<a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'адрес для обращений')}</a>,
 		срок ответа — 30 дней.
-		Неурегулированные споры рассматриваются {field(OPERATOR.disputeVenue, 'место разрешения споров')}.
+		Неурегулированные споры рассматриваются {field(VENUE.disputeVenue.ru, 'место разрешения споров')}.
 	</p>
 
 	<h2>14. Реквизиты Правообладателя</h2>
 	<ul>
-		<li>Наименование: {field(OPERATOR.name, 'наименование правообладателя')}</li>
-		<li>Регистрационные данные: {field(OPERATOR.registration, 'идентификационный номер ИП')}</li>
-		<li>Адрес: {field(OPERATOR.address, 'адрес для юридически значимых сообщений')}</li>
+		<li>Наименование: {field(OPERATOR.name.ru, 'наименование правообладателя')}</li>
+		<li>
+			Регистрационные данные: идентификационный номер (Tax ID)
+			{' '}{field(OPERATOR.registration, 'идентификационный номер ИП')}
+		</li>
+		<li>Адрес: {field(OPERATOR.address.ru, 'адрес для юридически значимых сообщений')}</li>
 		<li>
 			Почта: <a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'адрес для обращений')}</a>
 		</li>

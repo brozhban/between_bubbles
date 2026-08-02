@@ -1,6 +1,15 @@
 ---
 import Page from '../../layouts/Page.astro'
-import { IS_DRAFT, OPERATOR, TERMS_DATE_LABEL_EN, TERMS_VERSION, field } from '../../legal'
+import {
+	IS_DRAFT,
+	OPERATOR,
+	TERMS_DATE_LABEL,
+	TERMS_VERSION,
+	VENUE,
+	WEBAPP_HOST,
+	WEBSITE_HOST,
+	field,
+} from '../../legal'
 
 /**
  * Английская оферта — перевод русского оригинала, а не самостоятельный документ.
@@ -8,18 +17,6 @@ import { IS_DRAFT, OPERATOR, TERMS_DATE_LABEL_EN, TERMS_VERSION, field } from '.
  * Юрист вычитывал русскую версию, поэтому здесь прямо сказано, что при расхождении
  * приоритет за ней. Любая правка по существу вносится в обе страницы сразу.
  */
-
-const websiteHost = hostOf(import.meta.env.PUBLIC_WEBSITE_URL, 'winesdiary.com')
-const webappHost = hostOf(import.meta.env.PUBLIC_WEBAPP_URL, 'app.winesdiary.com')
-
-function hostOf(url: string | undefined, fallback: string) {
-	if (!url) return fallback
-	try {
-		return new URL(url).host
-	} catch {
-		return fallback
-	}
-}
 ---
 
 <Page
@@ -32,7 +29,20 @@ function hostOf(url: string | undefined, fallback: string) {
 >
 	<p class="eyebrow">Legal</p>
 	<h1>Terms of Service</h1>
-	<p class="version">Last updated: {TERMS_DATE_LABEL_EN} · Version: {TERMS_VERSION}</p>
+	<p class="version">Last updated: {TERMS_DATE_LABEL.en} · Version: {TERMS_VERSION}</p>
+
+	{
+		IS_DRAFT && (
+			<div class="notice">
+				<p style="margin: 0">
+					<strong>Draft.</strong> The text describes the service as it actually works, but
+					the rightholder's details have not been confirmed yet and are shown in square
+					brackets. Until they are filled in and the text is reviewed by a lawyer, this
+					document is not a public offer.
+				</p>
+			</div>
+		)
+	}
 
 	<div class="notice">
 		<p style="margin: 0">
@@ -43,14 +53,14 @@ function hostOf(url: string | undefined, fallback: string) {
 
 	<h2>1. Parties and Subject Matter</h2>
 	<p>
-		This document is a public offer by {field(OPERATOR.name, 'operator name')} (hereinafter —
+		This document is a public offer by {field(OPERATOR.name.en, 'operator name')} (hereinafter —
 		the Rightholder), addressed to any legally capable adult individual (hereinafter — the
 		User), to enter into an agreement on the use of the Between Bubbles service on the terms
 		set out below.
 	</p>
 	<p>
 		The service is the Between Bubbles web application: a personal wine tasting diary
-		available at {websiteHost} and {webappHost}. The service is intended for personal,
+		available at {WEBSITE_HOST} and {WEBAPP_HOST}. The service is intended for personal,
 		non-commercial use: keeping track of what the User has tasted and of their own
 		impressions.
 	</p>
@@ -198,18 +208,18 @@ function hostOf(url: string | undefined, fallback: string) {
 
 	<h2>13. Governing Law and Disputes</h2>
 	<p>
-		This agreement is governed by the law of Georgia. The parties resolve disputes by
-		correspondence: a request is sent to
+		This agreement is governed by the law of {field(VENUE.jurisdiction.en, 'governing law country')}.
+		The parties resolve disputes by correspondence: a request is sent to
 		{' '}<a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'contact email address')}</a>,
-		with a response time of 30 days. Unresolved disputes are considered by the courts of
-		Georgia at the location of the Rightholder.
+		with a response time of 30 days. Unresolved disputes are considered by
+		{' '}{field(VENUE.disputeVenue.en, 'dispute venue')}.
 	</p>
 
 	<h2>14. Rightholder Details</h2>
 	<ul>
-		<li>Name: {field(OPERATOR.name, 'operator name')}</li>
-		<li>Registration: {field(OPERATOR.registration, 'operator tax id')}</li>
-		<li>Address: {field(OPERATOR.address, 'operator address')}</li>
+		<li>Name: {field(OPERATOR.name.en, 'operator name')}</li>
+		<li>Registration: Tax ID {field(OPERATOR.registration, 'operator tax id')}</li>
+		<li>Address: {field(OPERATOR.address.en, 'operator address')}</li>
 		<li>
 			Email: <a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'contact email address')}</a>
 		</li>
