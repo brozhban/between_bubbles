@@ -8,7 +8,7 @@
  * Меняется при каждой правке текста по существу — иначе согласие в базе будет ссылаться
  * на редакцию, которую пользователь не видел. Косметическая правка вёрстки версию не трогает.
  */
-export const CURRENT_TERMS_VERSION = '2026-07-30'
+export const CURRENT_TERMS_VERSION = '2026-08-03'
 
 /**
  * Все опубликованные редакции, от старых к новым.
@@ -20,7 +20,7 @@ export const CURRENT_TERMS_VERSION = '2026-07-30'
  *
  * Новая редакция добавляется сюда вместе с правкой `CURRENT_TERMS_VERSION`.
  */
-export const PUBLISHED_TERMS_VERSIONS = ['2026-07-30'] as const
+export const PUBLISHED_TERMS_VERSIONS = ['2026-07-30', '2026-08-03'] as const
 
 export type PublishedTermsVersion = (typeof PUBLISHED_TERMS_VERSIONS)[number]
 

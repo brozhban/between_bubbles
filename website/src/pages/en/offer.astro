@@ -12,10 +12,13 @@ import {
 } from '../../legal'
 
 /**
- * Английская оферта — перевод русского оригинала, а не самостоятельный документ.
+ * Английская оферта в редакции юриста (3 августа 2026).
  *
- * Юрист вычитывал русскую версию, поэтому здесь прямо сказано, что при расхождении
- * приоритет за ней. Любая правка по существу вносится в обе страницы сразу.
+ * Приоритет по-прежнему за русской версией — так сказано в шапке документа, — но текст
+ * здесь уже не перевод: юрист добавил конструкции англо-американского права, которых в
+ * русской оферте нет. Расходятся §4 (лицензия на сервис), §6 (лицензия на контент
+ * пользователя), §9 (отказ от подразумеваемых гарантий) и §10 (перечень исключаемых
+ * убытков). Правки по существу вносятся в обе страницы сразу, иначе разрыв растёт.
  */
 ---
 
@@ -54,8 +57,8 @@ import {
 	<h2>1. Parties and Subject Matter</h2>
 	<p>
 		This document is a public offer by {field(OPERATOR.name.en, 'operator name')} (hereinafter —
-		the Rightholder), addressed to any legally capable adult individual (hereinafter — the
-		User), to enter into an agreement on the use of the Between Bubbles service on the terms
+		the "Rightholder"), addressed to any legally capable adult individual (hereinafter — the
+		"User"), to enter into an agreement on the use of the Between Bubbles service on the terms
 		set out below.
 	</p>
 	<p>
@@ -77,17 +80,18 @@ import {
 	<p>
 		The service is available only to individuals who have reached 18 years of age. The date of
 		birth is requested during registration; providing false information is grounds for
-		blocking the account. Excessive alcohol consumption is harmful to your health. The service
-		does not provide medical advice, does not encourage consumption, and is not an
+		immediate account suspension. Excessive alcohol consumption is harmful to your health. The
+		service does not provide medical advice, does not encourage consumption, and is not an
 		advertisement for alcoholic beverages.
 	</p>
 
-	<h2>4. What the User Receives</h2>
+	<h2>4. License Grant (What the User Receives)</h2>
 	<p>
-		The Rightholder grants the right to use the service for its intended purpose: to keep
-		tasting entries, store photos, maintain a personal wine directory, view weekly metrics and
-		statistics, export their data, and publish individual entries via a link. This right is
-		not transferable to third parties.
+		The Rightholder grants the User a personal, worldwide, non-exclusive, non-transferable, and
+		revocable license to use the service for its intended purpose: to keep tasting entries,
+		store photos, maintain a personal wine directory, view weekly metrics and statistics,
+		export their data, and publish individual entries via a link. This license is not
+		transferable to third parties.
 	</p>
 	<p>
 		The service is currently provided free of charge. The set of features may change and
@@ -95,15 +99,15 @@ import {
 		document; the export of data already created remains available in any case.
 	</p>
 
-	<h2>5. Account</h2>
+	<h2>5. Account Security</h2>
 	<ul>
 		<li>
-			The password and access to the email account are the User's responsibility. Actions
+			The password and access to the email account are the User's sole responsibility. Actions
 			performed under the account are considered performed by the User.
 		</li>
 		<li>
-			If you suspect your account has been compromised, change the password: doing so revokes
-			all active sessions on all devices.
+			If you suspect your account has been compromised, change the password immediately: doing
+			so revokes all active sessions on all devices.
 		</li>
 		<li>
 			The email address is used for service messages: address confirmation, password
@@ -115,18 +119,19 @@ import {
 	<h2>6. User Data and Content</h2>
 	<ul>
 		<li>
-			Entries, wine cards, notes, and photos remain yours. The Rightholder acquires no rights
-			to them beyond those technically necessary to operate the service: to store, process,
-			display them to you, include them in your export, and in a publication you created
-			yourself.
+			Entries, wine cards, notes, and photos remain yours. By using the service, the User
+			grants the Rightholder a worldwide, non-exclusive, royalty-free license to host, store,
+			process, and display this content solely to the extent technically necessary to operate
+			the service, include it in your export, and display it in a publication you created.
 		</li>
 		<li>
-			The User confirms that they are entitled to upload these photos and texts and that
-			these do not infringe the rights of third parties.
+			The User confirms and warrants that they are entitled to upload these photos and texts
+			and that these do not infringe the intellectual property or privacy rights of third
+			parties.
 		</li>
 		<li>
-			It is prohibited to upload other people's personal data, unlawful materials, insults,
-			or advertising.
+			It is strictly prohibited to upload other people's personal data, unlawful materials,
+			abusive content, or advertising.
 		</li>
 		<li>
 			Store names enter a shared directory and become available to other Users when selecting
@@ -138,46 +143,49 @@ import {
 	<h2>7. Publishing an Entry via a Link</h2>
 	<ul>
 		<li>
-			A link is created only by the User's action. The address consists of 16 random
+			A link is created only by the User's explicit action. The address consists of 16 random
 			characters and cannot be found by brute force.
 		</li>
 		<li>
 			The publication includes photos, the wine and its characteristics, the rating, taste
-			category, impressions, and notes, as well as the User's name — if they enabled that
-			toggle. Price, store, email address, and other entries are not included.
+			category, impressions, and notes, as well as the User's name — only if enabled in the
+			settings. Price, store, email address, and other entries are not included.
 		</li>
 		<li>
 			The link can be revoked in one click, after which the page stops opening. Copies,
 			screenshots, and messenger caches made while the link was active are outside the
-			Rightholder's control.
+			Rightholder's control and responsibility.
 		</li>
 		<li>A published page is closed to indexing by search engines.</li>
 	</ul>
 
 	<h2>8. Usage Restrictions</h2>
 	<p>
-		The following is not permitted: interfering with the operation of the service, bypassing
-		rate limits, collecting data by automated means, attempting to gain access to other users'
-		diaries, probing security without the Rightholder's written permission, and using the
-		service for unlawful purposes or to promote alcoholic beverages.
+		The following actions are strictly prohibited: interfering with the operation of the
+		service, bypassing rate limits, collecting data by automated means (scraping), attempting
+		to gain unauthorized access to other users' diaries, probing security vulnerabilities
+		without the Rightholder's written permission, and using the service for unlawful purposes
+		or to promote alcoholic beverages.
 	</p>
 
-	<h2>9. Service Availability</h2>
+	<h2>9. Disclaimer of Warranties</h2>
 	<p>
-		The service is provided "as is". The Rightholder does not guarantee uninterrupted
-		operation or the absence of errors: scheduled maintenance, updates, and outages caused by
-		providers are possible. Database backups are made regularly; nevertheless, the User is
-		advised to keep their own export — it is available in the settings in CSV and JSON formats
-		at any time.
+		The service is provided on an "AS IS" and "AS AVAILABLE" basis. The Rightholder explicitly
+		disclaims all warranties, whether express or implied, including fitness for a particular
+		purpose. The Rightholder does not guarantee uninterrupted operation or the absence of
+		errors: scheduled maintenance, updates, and outages caused by providers are possible.
+		Database backups are made regularly; nevertheless, the User is strongly advised to keep
+		their own export — it is available in the settings in CSV and JSON formats at any time.
 	</p>
 
-	<h2>10. Liability</h2>
+	<h2>10. Limitation of Liability</h2>
 	<p>
 		The service is a personal record-keeping tool, not medical, dietary, or other professional
 		advice. Decisions about alcohol consumption are made by the User independently and at
-		their own responsibility. To the extent permitted by applicable law, the Rightholder is
-		not liable for lost profits or indirect damages arising from the use of, or inability to
-		use, the service.
+		their own responsibility. To the maximum extent permitted by applicable law, the
+		Rightholder shall not be liable for any indirect, incidental, special, consequential, or
+		punitive damages, or any loss of profits or revenues, arising out of the use of or
+		inability to use the service.
 	</p>
 
 	<h2>11. Termination</h2>
@@ -188,9 +196,9 @@ import {
 			irreversibly.
 		</li>
 		<li>
-			The Rightholder may suspend or terminate access in the event of a breach of these
-			terms, a false date of birth, a threat to the operability or security of the service,
-			and in cases provided for by law. Where possible, with prior notice by email.
+			The Rightholder reserves the right to suspend or terminate access in the event of a
+			breach of these terms, a false date of birth, a threat to the operability or security of
+			the service, or as required by law, where possible with prior notice by email.
 		</li>
 		<li>
 			If the service is discontinued entirely, the Rightholder will notify Users at least 30
@@ -200,19 +208,19 @@ import {
 
 	<h2>12. Changes to the Terms</h2>
 	<p>
-		A new version is published on this page with a new date and version number. The Rightholder
-		notifies Users of material changes at the email address provided during registration and,
-		where necessary, requests consent again. Continued use of the service after a new version
-		takes effect constitutes agreement with it.
+		A new version is published on this page with an updated date and version number. The
+		Rightholder notifies Users of material changes at the email address provided during
+		registration and, where necessary, requests consent again. Continued use of the service
+		after a new version takes effect constitutes agreement with it.
 	</p>
 
 	<h2>13. Governing Law and Disputes</h2>
 	<p>
-		This agreement is governed by the law of {field(VENUE.jurisdiction.en, 'governing law country')}.
+		This agreement is governed by the laws of {field(VENUE.jurisdiction.en, 'governing law country')}.
 		The parties resolve disputes by correspondence: a request is sent to
 		{' '}<a href={`mailto:${OPERATOR.email}`}>{field(OPERATOR.email, 'contact email address')}</a>,
-		with a response time of 30 days. Unresolved disputes are considered by
-		{' '}{field(VENUE.disputeVenue.en, 'dispute venue')}.
+		with a response time of 30 days. Unresolved disputes shall be subject to the exclusive
+		jurisdiction of {field(VENUE.disputeVenue.en, 'dispute venue')}.
 	</p>
 
 	<h2>14. Rightholder Details</h2>
