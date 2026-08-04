@@ -2,9 +2,17 @@
 /**
  * Общий каркас публичных страниц.
  *
- * Палитра и типографика повторяют DESIGN.md, но живут здесь автономно: website не тянет
- * стили из webapp, иначе статическая сборка зависела бы от клиентского пайплайна.
+ * Визуальное направление — «Виноградник на закате» (основа: INVERSA): фотография на весь
+ * экран, кремовый текст на почти-чёрном, единственный яркий цвет живёт только на главной
+ * кнопке. Система сайта намеренно разошлась с DESIGN.md, который описывает дневник:
+ * приложение осталось на песочной палитре и серифе, сайт — на закатной. Пока это
+ * сознательный разрыв на переходе «Открыть дневник», а не недосмотр.
+ *
+ * Стили живут здесь автономно: website не тянет их из webapp, иначе статическая сборка
+ * зависела бы от клиентского пайплайна.
  */
+import { Font } from 'astro:assets'
+
 import type { Locale } from '@between-bubbles/contracts'
 
 interface Props {
@@ -13,6 +21,8 @@ interface Props {
 	noindex?: boolean
 	/** Страница-документ: её читают целиком, а не просматривают. */
 	longform?: boolean
+	/** Лендинг: сам управляет секциями, потому что фон уходит за края экрана. */
+	wide?: boolean
 	/** Язык страницы. Правовые документы существуют в двух версиях (рекомендация юриста). */
 	lang?: Locale
 	/** Адрес той же страницы на другом языке, если он есть. */
@@ -50,6 +60,7 @@ const {
 	description,
 	noindex = false,
 	longform = false,
+	wide = false,
 	lang = 'ru',
 	alternatePath,
 } = Astro.props
@@ -97,26 +108,28 @@ const nav = navigation[lang]
 		<meta property="og:description" content={description} />
 		{canonicalUrl && <meta property="og:url" content={canonicalUrl} />}
 		<meta name="twitter:card" content="summary" />
+		<meta name="theme-color" content="#14150f" />
+		<Font cssVariable="--font-display" preload />
+		<Font cssVariable="--font-mono" preload />
 		<style is:global>
 			:root {
-				--bg: #dacabf;
-				--surface: #efe3dc;
-				--text: #444242;
-				--text-muted: #595552;
-				--border: #938a83;
-				--accent-b: #aa9e54;
-				--serif: 'Lora', 'EB Garamond', Georgia, serif;
-				--sans: 'Inter', system-ui, sans-serif;
-			}
-
-			@media (prefers-color-scheme: dark) {
-				:root {
-					--bg: #062d32;
-					--surface: #344b52;
-					--text: #e9e9e2;
-					--text-muted: #767676;
-					--border: rgb(52 75 82 / 60%);
-				}
+				/* Тёмная тема — не режим, а сам бренд: холст здесь несёт направление. */
+				color-scheme: dark;
+				--bg: #14150f;
+				--surface: #1c1d16;
+				--text: #f4f3e8;
+				--text-muted: #84837b;
+				--border: #404040;
+				/*
+				 * Единственный яркий цвет системы. Роль ровно одна — главная кнопка.
+				 * Не фон, не текст, не рамка: у источника этот приём работает потому,
+				 * что глазу на всей странице некуда больше на него посмотреть.
+				 */
+				--accent: #d6e85a;
+				--display: var(--font-display), system-ui, sans-serif;
+				--mono: var(--font-mono), ui-monospace, 'SF Mono', Menlo, monospace;
+				/* Ширина текстовой колонки из референса: длинные строки на тёмном утомляют. */
+				--measure: 50.625rem;
 			}
 
 			* {
@@ -127,31 +140,42 @@ const nav = navigation[lang]
 				margin: 0;
 				background: var(--bg);
 				color: var(--text);
-				font-family: var(--sans);
-				line-height: 1.5;
+				font-family: var(--mono);
+				font-size: 1.125rem;
+				line-height: 1.28;
+				letter-spacing: -0.03em;
 			}
 
 			main {
 				margin: 0 auto;
-				max-width: 42rem;
+				max-width: var(--measure);
 				padding: 2.5rem 1.25rem 4rem;
+			}
+
+			main.wide {
+				max-width: none;
+				padding: 0;
 			}
 
 			h1,
 			h2 {
-				font-family: var(--serif);
+				font-family: var(--display);
 				font-weight: 400;
-				line-height: 1.2;
 				margin: 0;
+				text-wrap: balance;
 			}
 
 			h1 {
-				font-size: 1.75rem;
+				font-size: clamp(2.25rem, 7vw, 3.625rem);
+				line-height: 1.06;
+				letter-spacing: -0.03em;
 			}
 
 			h2 {
-				font-size: 1.25rem;
-				margin-top: 2.5rem;
+				font-size: clamp(1.375rem, 3.5vw, 1.8125rem);
+				line-height: 1.25;
+				letter-spacing: -0.02em;
+				margin-top: 3.6875rem;
 			}
 
 			p {
@@ -171,7 +195,7 @@ const nav = navigation[lang]
 			}
 
 			code {
-				font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+				font-family: var(--mono);
 				font-size: 0.875em;
 				overflow-wrap: anywhere;
 			}
@@ -182,13 +206,25 @@ const nav = navigation[lang]
 			}
 
 			/*
-			 * Правовые страницы читают целиком, поэтому их текст идёт основным цветом.
-			 * Приглушённый оттенок из DESIGN.md рассчитан на короткие подписи лендинга и на
-			 * странице документа даёт слабый контраст в тёмной теме.
+			 * Правовые страницы читают целиком, поэтому их текст идёт основным цветом:
+			 * приглушённый оттенок рассчитан на короткие подписи лендинга и на странице
+			 * документа даёт слабый контраст.
+			 *
+			 * Здесь же единственное отступление от референса по существу. У источника
+			 * моноширинный шрифт несёт и основной текст, но там текста — три абзаца
+			 * маркетинговой копии. У нас оферта и политика на несколько тысяч слов, а
+			 * моноширинный на такой длине читается заметно медленнее и гонит строку в
+			 * ширину. Поэтому проза документов набрана наборным шрифтом с обычным
+			 * межбуквенным и просторным интерлиньяжем, а моноширинный остаётся там, где
+			 * у него техническая роль: подписи, навигация, кнопки, мета.
 			 */
-			.longform p:not(.eyebrow),
+			.longform p:not(.eyebrow, .version),
 			.longform li {
 				color: var(--text);
+				font-family: var(--display);
+				font-size: 1rem;
+				line-height: 1.6;
+				letter-spacing: normal;
 			}
 
 			a {
@@ -203,14 +239,27 @@ const nav = navigation[lang]
 				color: var(--text-muted);
 			}
 
+			/*
+			 * Единственное место, где появляется акцент, и единственное скругление в системе.
+			 * 3.6px — не произвол: у источника скругляются только кнопки и поля ввода,
+			 * всё остальное остаётся с прямыми углами.
+			 */
 			.cta {
 				display: inline-block;
-				border: 1px solid var(--text);
-				padding: 0.875rem 1.5rem;
+				background: var(--accent);
+				color: var(--bg);
+				border: 0;
+				border-radius: 3.6px;
+				padding: 0.875rem 1.125rem;
 				text-decoration: none;
-				font-size: 0.8125rem;
-				letter-spacing: 0.07em;
-				text-transform: uppercase;
+				font-family: var(--mono);
+				font-size: 0.875rem;
+				letter-spacing: normal;
+			}
+
+			.cta:hover,
+			.cta:focus-visible {
+				background: var(--text);
 			}
 
 			.notice {
@@ -228,10 +277,61 @@ const nav = navigation[lang]
 				margin-top: 3rem;
 				padding-top: 1.5rem;
 			}
+
+			main.wide .nav {
+				margin: 0 auto;
+				max-width: var(--measure);
+				padding: 1.5rem 1.25rem 4rem;
+			}
+
+			/*
+			 * Переход между страницами. Смысл — не украшение, а непрерывность: сайт
+			 * состоит из документов, между которыми ходят по ссылкам, и резкая перерисовка
+			 * на тёмном холсте читается как моргание.
+			 *
+			 * Нативные межстраничные переходы, а не роутер `ClientRouter` из Astro: сайт
+			 * полностью статический, и роутер добавил бы к нему клиентский JavaScript ради
+			 * эффекта, который браузер умеет сам. Где View Transitions не поддерживаются,
+			 * переход просто мгновенный — страница остаётся рабочей.
+			 */
+			@view-transition {
+				navigation: auto;
+			}
+
+			::view-transition-old(root) {
+				animation: bb-fade-out 260ms cubic-bezier(0.4, 0, 0.2, 1) both;
+			}
+
+			::view-transition-new(root) {
+				animation: bb-fade-in 320ms cubic-bezier(0.4, 0, 0.2, 1) both;
+			}
+
+			@keyframes bb-fade-out {
+				to {
+					opacity: 0;
+					transform: translateY(-0.5rem);
+				}
+			}
+
+			@keyframes bb-fade-in {
+				from {
+					opacity: 0;
+					transform: translateY(0.75rem);
+				}
+			}
+
+			/* Анимация перехода — украшение; для тех, кто просил её выключить, её просто нет. */
+			@media (prefers-reduced-motion: reduce) {
+				::view-transition-group(*),
+				::view-transition-old(*),
+				::view-transition-new(*) {
+					animation: none !important;
+				}
+			}
 		</style>
 	</head>
 	<body>
-		<main class:list={[{ longform }]}>
+		<main class:list={[{ longform, wide }]}>
 			<slot />
 			<nav class="nav" aria-label={nav.label}>
 				{nav.links.map((link) => <a href={link.href}>{link.text}</a>)}

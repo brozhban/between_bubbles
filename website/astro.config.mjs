@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 
 // https://astro.build/config
 //
@@ -30,4 +30,34 @@ import { defineConfig } from 'astro/config';
 //      path". Note: built-in per-page ISR is not part of the default
 //      DigitalOcean/Yandex static path; use rebuilds or CDN/runtime cache
 //      freshness instead.
-export default defineConfig({});
+//
+// Шрифты скачиваются на сборке и отдаются с нашего домена. Подключать Google Fonts
+// ссылкой нельзя: браузер посетителя ушёл бы за файлом на сервер Google, то есть Google
+// стал бы получателем его IP-адреса. Политика конфиденциальности §6 перечисляет
+// подрядчиков поимённо — DigitalOcean, Resend, Cloudflare, — и появление там четвёртого
+// имени сделало бы опубликованный документ неправдой. Здесь провайдер работает только
+// во время сборки, в готовую страницу уходят локальные файлы.
+export default defineConfig({
+	fonts: [
+		{
+			// Заголовки, навигация и проза правовых документов. Замена NB International Pro
+			// из референса INVERSA. 700 нужен: в документах есть выделения жирным.
+			provider: fontProviders.google(),
+			name: 'Inter',
+			cssVariable: '--font-display',
+			weights: [400, 700],
+			styles: ['normal'],
+			subsets: ['latin', 'cyrillic'],
+		},
+		{
+			// Основной текст, подписи и кнопки: моноширинный даёт технический тон,
+			// на котором держится вся мелкая типографика направления.
+			provider: fontProviders.google(),
+			name: 'JetBrains Mono',
+			cssVariable: '--font-mono',
+			weights: [400, 700],
+			styles: ['normal'],
+			subsets: ['latin', 'cyrillic'],
+		},
+	],
+});
