@@ -38,3 +38,9 @@ backend/.prisma-generate.lock
 
 # Локальный запуск дев-серверов: внутри абсолютные пути с конкретной машины.
 .claude/launch.json
+
+# Скиллы агента ставятся из skills-lock.json, как зависимости из lock-файла: сам лок
+# в репозитории, распакованное содержимое — нет. Восстанавливается командой
+# `npx skills experimental_install`.
+.agents/
+.claude/skills/
