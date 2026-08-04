@@ -311,7 +311,7 @@ export function EntryForm({ entryId }: { entryId?: string } = {}) {
       </header>
 
       {step === 0 && (
-        <section className="grid gap-6 border border-border bg-card p-4">
+        <section className="grid gap-6 border border-border p-4">
           <UnderlineInput
             label={t('form.date')}
             type="date"
@@ -473,7 +473,7 @@ export function EntryForm({ entryId }: { entryId?: string } = {}) {
       )}
 
       {step === 1 && (
-        <section className="grid gap-8 border border-border bg-card p-4">
+        <section className="grid gap-8 border border-border p-4">
           <ScaleSlider
             label={t('entry.body')}
             options={bodyOrder}
@@ -511,7 +511,7 @@ export function EntryForm({ entryId }: { entryId?: string } = {}) {
       )}
 
       {step === 2 && (
-        <section className="grid gap-8 border border-border bg-card p-4">
+        <section className="grid gap-8 border border-border p-4">
           <FlavorChips
             label={t('entry.aroma')}
             tone="a"
@@ -574,7 +574,7 @@ export function EntryForm({ entryId }: { entryId?: string } = {}) {
       )}
 
       {step === 3 && (
-        <section className="grid gap-8 border border-border bg-card p-4">
+        <section className="grid gap-8 border border-border p-4">
           <RatingInput
             label={t('form.rating')}
             value={draft.rating}

@@ -26,7 +26,7 @@ export function RootLayout() {
     <WineBackgroundProvider>
     <div className="relative flex min-h-svh flex-col bg-background text-foreground">
       <AppBackground />
-      <header className="relative z-10 border-b border-border bg-card">
+      <header className="glass relative z-10 border-b border-border">
         <div className="mx-auto flex w-full max-w-2xl items-center gap-3 px-4 py-4">
           <Typography asChild variant="capsNav">
             <Link to="/">{t('app.name')}</Link>
@@ -52,7 +52,7 @@ export function RootLayout() {
         <EmailVerificationNotice />
       </div>
 
-      <main className="relative z-10 mx-auto w-full max-w-2xl flex-1">
+      <main className="glass relative z-10 mx-auto w-full max-w-2xl flex-1">
         <Outlet />
       </main>
 

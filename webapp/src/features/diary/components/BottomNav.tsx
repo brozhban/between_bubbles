@@ -24,7 +24,7 @@ export function BottomNav({ className }: { className?: string }) {
     <nav
       aria-label={t('nav.primary')}
       className={cn(
-        'sticky bottom-0 z-10 grid grid-cols-4 border-t border-border bg-card',
+        'glass sticky bottom-0 z-10 grid grid-cols-4 border-t border-border',
         className,
       )}
     >

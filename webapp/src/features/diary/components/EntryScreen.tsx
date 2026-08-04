@@ -77,7 +77,7 @@ export function EntryScreen({ entryId }: { entryId: string }) {
         </Typography>
       </header>
 
-      <section className="grid gap-4 border border-border bg-card p-4">
+      <section className="grid gap-4 border border-border p-4">
         <Facts
           emptyLabel={t('entry.emptyFacts')}
           rows={[
@@ -111,7 +111,7 @@ export function EntryScreen({ entryId }: { entryId: string }) {
         />
       </section>
 
-      <section className="grid gap-4 border border-border bg-card p-4">
+      <section className="grid gap-4 border border-border p-4">
         <Facts
           emptyLabel={t('entry.emptyFacts')}
           rows={[
@@ -168,7 +168,7 @@ export function EntryScreen({ entryId }: { entryId: string }) {
         </OutlinedButton>
 
         {isConfirmingDelete ? (
-          <div className="grid gap-3 border border-border bg-card p-4">
+          <div className="grid gap-3 border border-border p-4">
             <Typography variant="bodySm">
               {t('entry.deleteConfirm')}
             </Typography>

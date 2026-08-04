@@ -111,7 +111,7 @@
     --secondary: #f5f3ea;
     --secondary-foreground: #1b1c15;
     --muted: #f5f3ea;
-    --muted-foreground: #5b5c50;
+    --muted-foreground: #45463c;
     --accent: #f5f3ea;
     --accent-foreground: #1b1c15;
     --destructive: #8e2130;
@@ -170,7 +170,7 @@
     --secondary: #1f2018;
     --secondary-foreground: #f4f3e8;
     --muted: #1f2018;
-    --muted-foreground: #a5a497;
+    --muted-foreground: #c4c3b6;
     --accent: #1f2018;
     --accent-foreground: #f4f3e8;
     --destructive: #e2707a;
@@ -216,13 +216,48 @@
  */
 .app-background {
   background-image: var(--background-image-light);
-  opacity: 0.2;
+  opacity: 0.35;
   animation: app-background-fade 420ms ease-out both;
 }
 
 .dark .app-background {
   background-image: var(--background-image-dark);
-  opacity: 0.32;
+  opacity: 0.45;
+}
+
+/*
+ * Края растворяются в холст, как у референса: без этого фотография обрывается
+ * ровной линией у шапки и нижней навигации, и стык видно.
+ */
+.app-background::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    var(--background) 0%,
+    transparent 18%,
+    transparent 78%,
+    var(--background) 100%
+  );
+}
+
+/*
+ * Стекло: содержимое экрана лежит на полупрозрачной поверхности, сквозь которую
+ * видно размытую фотографию. Текст никогда не ложится на саму картинку — на ней
+ * даже размытой мелкие подписи дают около 2:1 при норме 4.5.
+ *
+ * Прозрачное на прозрачное не кладём: стекло ровно одно на экран, вложенные блоки
+ * внутри остаются на рамках, иначе слои складываются и поверхность мутнеет.
+ */
+.glass {
+  background-color: color-mix(in srgb, var(--card) 40%, transparent);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.dark .glass {
+  background-color: color-mix(in srgb, var(--card) 25%, transparent);
 }
 
 @keyframes app-background-fade {

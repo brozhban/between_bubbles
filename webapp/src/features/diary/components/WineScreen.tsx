@@ -60,7 +60,7 @@ export function WineScreen({ wineId }: { wineId: string }) {
         </Typography>
       </header>
 
-      <section className="grid grid-cols-2 gap-4 border border-border bg-card p-4">
+      <section className="grid grid-cols-2 gap-4 border border-border p-4">
         <div className="grid gap-1">
           <Typography variant="capsLabel" tone="muted">
             {t('wine.averageRating')}

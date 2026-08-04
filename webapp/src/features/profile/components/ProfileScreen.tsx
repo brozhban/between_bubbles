@@ -347,7 +347,7 @@ function DangerSection() {
       </Typography>
 
       {isConfirming ? (
-        <div className="grid gap-4 border border-border bg-card p-4">
+        <div className="grid gap-4 border border-border p-4">
           <Typography variant="bodySm">
             {t('profile.deleteConfirm')}
           </Typography>

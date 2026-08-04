@@ -73,7 +73,7 @@ export function WeekScreen() {
       )}
 
       {data.entries.length === 0 ? (
-        <div className="grid gap-4 border border-border bg-card p-6">
+        <div className="grid gap-4 border border-border p-6">
           <Typography variant="wineNameLg">{t('week.empty')}</Typography>
           <Typography tone="muted">{t('week.emptyHint')}</Typography>
           <OutlinedButton type="button" onClick={() => void navigate({ to: '/add' })}>
@@ -150,7 +150,7 @@ function MetricsBlock({
   locale: Locale
 }) {
   return (
-    <section className="grid gap-6 border border-border bg-card p-4">
+    <section className="grid gap-6 border border-border p-4">
       <div className="grid grid-cols-3 gap-4">
         <Metric label={t('week.totalEntries')} value={String(metrics.totalEntries)} />
         <Metric label={t('week.totalGlasses')} value={String(metrics.totalGlasses)} />
