@@ -44,6 +44,7 @@ import { UnderlineInput } from './UnderlineField'
 import { StorePicker, type StoreSelection } from './StorePicker'
 import { UnderlineSelect } from './UnderlineSelect'
 import { VolumePicker } from './VolumePicker'
+import { useWineBackground } from '../wine-background-context'
 
 const stepKeys = [
   'form.stepBasics',
@@ -145,6 +146,17 @@ export function EntryForm({ entryId }: { entryId?: string } = {}) {
   const existing = useEntryQuery(entryId)
   const aromaTags = useAromaTagsQuery()
   const catalogue = useWinesQuery({ sort: 'lastTasted', order: 'desc', limit: 100 })
+
+  /*
+   * Фон формы идёт за выбранным вином. Для нового вина тип лежит прямо в черновике,
+   * для вина из справочника — у самого вина, поэтому его приходится доставать из списка:
+   * черновик хранит только идентификатор.
+   */
+  useWineBackground(
+    draft.wineMode === 'existing'
+      ? catalogue.data?.items.find((wine) => wine.id === draft.wineId)?.type
+      : draft.type,
+  )
   const countries = useMemo(() => countryOptions(locale), [locale])
 
   // Кандидаты на «ту же бутылку» — записи той же недели и предыдущей: бутылку допивают
@@ -299,7 +311,7 @@ export function EntryForm({ entryId }: { entryId?: string } = {}) {
       </header>
 
       {step === 0 && (
-        <section className="grid gap-6">
+        <section className="grid gap-6 border border-border bg-card p-4">
           <UnderlineInput
             label={t('form.date')}
             type="date"
@@ -461,7 +473,7 @@ export function EntryForm({ entryId }: { entryId?: string } = {}) {
       )}
 
       {step === 1 && (
-        <section className="grid gap-8">
+        <section className="grid gap-8 border border-border bg-card p-4">
           <ScaleSlider
             label={t('entry.body')}
             options={bodyOrder}
@@ -499,7 +511,7 @@ export function EntryForm({ entryId }: { entryId?: string } = {}) {
       )}
 
       {step === 2 && (
-        <section className="grid gap-8">
+        <section className="grid gap-8 border border-border bg-card p-4">
           <FlavorChips
             label={t('entry.aroma')}
             tone="a"
@@ -562,7 +574,7 @@ export function EntryForm({ entryId }: { entryId?: string } = {}) {
       )}
 
       {step === 3 && (
-        <section className="grid gap-8">
+        <section className="grid gap-8 border border-border bg-card p-4">
           <RatingInput
             label={t('form.rating')}
             value={draft.rating}

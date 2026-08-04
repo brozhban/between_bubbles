@@ -7,12 +7,12 @@ import { cn } from "@/lib/utils"
 const typographyVariants = cva("min-w-0 tracking-normal", {
   variants: {
     variant: {
-      h1: "font-heading text-4xl leading-tight font-semibold",
-      h2: "font-heading text-3xl leading-tight font-semibold",
-      h3: "font-heading text-2xl leading-snug font-semibold",
-      h4: "font-heading text-xl leading-snug font-semibold",
-      h5: "font-heading text-lg leading-snug font-medium",
-      h6: "font-heading text-base leading-snug font-medium",
+      h1: "font-display text-4xl leading-tight font-semibold",
+      h2: "font-display text-3xl leading-tight font-semibold",
+      h3: "font-display text-2xl leading-snug font-semibold",
+      h4: "font-display text-xl leading-snug font-semibold",
+      h5: "font-display text-lg leading-snug font-medium",
+      h6: "font-display text-base leading-snug font-medium",
       lead: "text-lg leading-7 font-normal",
       body: "text-base leading-7 font-normal",
       bodySm: "text-sm leading-normal font-normal",
@@ -39,18 +39,20 @@ const typographyVariants = cva("min-w-0 tracking-normal", {
         "text-sm leading-normal font-normal **:[[cmdk-group-heading]]:text-xs **:[[cmdk-group-heading]]:leading-normal **:[[cmdk-group-heading]]:font-medium",
       srOnly: "sr-only",
 
-      // Голос дневника (DESIGN.md): сериф — только имя вина, заголовки и заметки;
-      // всё служебное — санс капсом с разрядкой.
-      wineName: "font-serif text-base leading-[1.2] font-normal",
-      wineNameLg: "font-serif text-[28px] leading-[1.2] font-light",
-      screenTitle: "font-serif text-2xl leading-[1.2] font-normal",
-      diaryNote: "font-serif text-[15px] leading-[1.4] font-normal",
-      displayNumber: "font-serif text-[28px] leading-[1.2] font-light tabular-nums",
-      capsLabel: "text-[11px] leading-none font-medium tracking-[0.08em] uppercase",
-      capsMeta: "text-[11px] leading-none font-normal tracking-[0.06em] uppercase",
-      capsPole: "text-[10px] leading-none font-normal tracking-[0.06em] uppercase",
+      // Голос дневника (DESIGN.md): наборный шрифт — имя вина, заголовки и заметки;
+      // всё служебное и все числа — моноширинный капсом с разрядкой.
+      wineName: "font-display text-base leading-[1.2] font-normal",
+      wineNameLg: "font-display text-[28px] leading-[1.2] font-light",
+      screenTitle: "font-display text-2xl leading-[1.2] font-normal",
+      diaryNote: "font-display text-[15px] leading-[1.4] font-normal",
+      // Числа ушли в моноширинный: у него табличные цифры по природе, и это та же
+      // техническая роль, что у метрик недели на сайте.
+      displayNumber: "font-mono text-[28px] leading-[1.2] font-light",
+      capsLabel: "font-mono text-[11px] leading-none font-medium tracking-[0.08em] uppercase",
+      capsMeta: "font-mono text-[11px] leading-none font-normal tracking-[0.06em] uppercase",
+      capsPole: "font-mono text-[10px] leading-none font-normal tracking-[0.06em] uppercase",
       capsNav:
-        "text-[13px] leading-none font-medium tracking-[0.07em] uppercase whitespace-nowrap",
+        "font-mono text-[13px] leading-none font-medium tracking-[0.07em] uppercase whitespace-nowrap",
       fieldValue: "text-sm leading-normal font-normal",
     },
     tone: {

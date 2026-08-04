@@ -127,7 +127,7 @@ test('wrapped Radix-like primitives keep child slots and Typography classes at r
 
   expect(markup).toContain('data-slot="dialog-title"')
   expect(markup).toContain('custom-title')
-  expect(markup).toContain('font-heading text-base')
+  expect(markup).toContain('font-display text-base')
 
   expect(markup).toContain('data-slot="dialog-description"')
   expect(markup).toContain('text-muted-foreground')

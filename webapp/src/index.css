@@ -1,27 +1,40 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
-@import "@fontsource-variable/figtree";
+@import "@fontsource-variable/inter";
+@import "@fontsource-variable/jetbrains-mono";
 
 @custom-variant dark (&:is(.dark *));
 
 /*
- * Дизайн-система «Дневиник» (DESIGN.md).
+ * Дизайн-система «Виноградник на закате» (DESIGN.md).
  *
- * Палитра ложится на семантические переменные shadcn, чтобы готовые примитивы —
- * Card, Input, Button — сразу читались как тёплый бумажный дневник, а не как дефолтный UI-кит.
- * Акценты (Dusty Rose / Mustard Olive) намеренно НЕ подставлены в `--accent`: по гайду они
- * работают точечно на тегах и рейтинге, а не заливают фон каждого ховера.
+ * Та же система, что на сайте: тёмный холст цвета лозы, кремовый текст, единственный
+ * яркий цвет на главном действии. Палитра ложится на семантические переменные shadcn,
+ * чтобы готовые примитивы — Card, Input, Button — читались как дневник, а не как
+ * дефолтный UI-кит. Акценты тегов намеренно НЕ подставлены в `--accent`: они работают
+ * точечно на плашках и рейтинге, а не заливают фон каждого ховера.
  *
- * Шрифты: Lora и Inter пока подхватываются только если установлены в системе, иначе
- * подставляются Georgia и уже входящий в шаблон Figtree. Пакеты @fontsource для них
- * ещё не добавлены — это отдельное решение по зависимостям.
+ * Светлая тема выведена в том же бренде, а не оставлена от прежней песочной системы:
+ * у направления нет готового светлого варианта, поэтому холст взят из известняка
+ * погребов на кадрах сайта — тот же мир при дневном свете.
+ *
+ * Цвета типов вина разнесены по светлоте, а не по оттенку. Белое, оранжевое, розе и
+ * красное лежат в одном секторе цветового круга, который красно-зелёный дальтонизм
+ * схлопывает: в прежней палитре белое и оранжевое давали ΔE 1.84 при дейтеранопии,
+ * то есть на диаграмме были одним цветом. Набор подобран перебором и проверен на
+ * контраст к поверхности и на различимость при трёх видах дальтонизма.
+ *
+ * Шрифты самохостятся пакетами @fontsource: подключение из сети сделало бы стороннего
+ * поставщика получателем IP-адресов пользователей.
  */
 
 @theme inline {
-    --font-heading: var(--font-serif);
-    --font-serif: 'Lora', 'EB Garamond', Georgia, 'Times New Roman', serif;
-    --font-sans: 'Inter', 'Figtree Variable', system-ui, sans-serif;
+    /* Заголовки, значения полей и заметки — то, что раньше несли Lora и Figtree. */
+    --font-display: 'Inter Variable', system-ui, sans-serif;
+    /* Техническая роль: капс-подписи, навигация, кнопки и все числа. */
+    --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SF Mono', Menlo, monospace;
+    --font-sans: var(--font-display);
 
     /* Акценты дневника: теги вкуса и рейтинг. */
     --color-accent-a: var(--accent-a);
@@ -81,114 +94,148 @@
 }
 
 :root {
-    /* Warm Sand / Linen Cream / Stone Charcoal / Mortar / Dust */
-    --background: #dacabf;
-    --foreground: #444242;
-    --card: #efe3dc;
-    --card-foreground: #444242;
-    --popover: #efe3dc;
-    --popover-foreground: #444242;
-    --primary: #444242;
-    --primary-foreground: #efe3dc;
-    --secondary: #efe3dc;
-    --secondary-foreground: #444242;
-    --muted: #efe3dc;
-    --muted-foreground: #595552;
-    --accent: #efe3dc;
-    --accent-foreground: #444242;
-    --destructive: #8c3b46;
-    --border: #938a83;
-    --input: #938a83;
-    --ring: #444242;
+    /* Светлая тема: известняк погреба, тот же мир при дневном свете. */
+    --background: #e9e7db;
+    --foreground: #1b1c15;
+    --card: #f5f3ea;
+    --card-foreground: #1b1c15;
+    --popover: #f5f3ea;
+    --popover-foreground: #1b1c15;
+    /*
+     * На светлом холсте фирменный лаймовый заливкой не работает: он даёт к фону 1.09:1,
+     * то есть кнопка сливается с поверхностью. Здесь тот же оттенок лозы, но тёмный —
+     * роль «единственное яркое действие» сохраняется, а границы кнопки видно.
+     */
+    --primary: #5b6a10;
+    --primary-foreground: #f4f3e8;
+    --secondary: #f5f3ea;
+    --secondary-foreground: #1b1c15;
+    --muted: #f5f3ea;
+    --muted-foreground: #5b5c50;
+    --accent: #f5f3ea;
+    --accent-foreground: #1b1c15;
+    --destructive: #8e2130;
+    --border: #807e6e;
+    --input: #807e6e;
+    --ring: #1b1c15;
 
-    --accent-a: #c9a9b5;
-    --accent-b: #aa9e54;
-    --accent-ink: #444242;
+    --accent-a: #c49ab0;
+    --accent-b: #b5ad63;
+    --accent-ink: #1b1c15;
 
     /*
-     * Цвета диаграмм — отдельный набор от акцентов тегов.
-     * Плашки тегов лежат на карточке с тёмными чернилами поверх, а сектор диаграммы
-     * должен держаться сам: straw #ddd0a8 из макета давал на песке контраст 1.04:1.
-     * Набор прогнан валидатором палитр (светлота, цветность, различимость при CVD,
-     * контраст к поверхности) на карточке Linen Cream.
+     * Типы вина: лестница по светлоте. На светлой карточке все четыре обязаны быть
+     * тёмными ради контраста, поэтому диапазон узкий и оттенки уходят в глубокие —
+     * оранжевое вино и в жизни янтарно-коричневое, так что узнаваемость не страдает.
      */
-    --wine-white: #9a7d22;
-    --wine-red: #9d3a48;
-    --wine-orange: #bd6c1e;
-    --wine-rose: #bb61a0;
+    --wine-white: #a57b18;
+    --wine-orange: #6c4013;
+    --wine-red: #511f26;
+    --wine-rose: #972675;
 
     /* Категории вкуса — последовательная шкала: их семь, и различать их цветом нельзя. */
-    --category-scale: #8c6f4a;
-    --category-none: #938a83;
+    --category-scale: #6c4013;
+    --category-none: #807e6e;
 
-    --chart-1: #8c3b46;
-    --chart-2: #aa9e54;
-    --chart-3: #c9a9b5;
-    --chart-4: #c07a3e;
-    --chart-5: #938a83;
+    /* Генерические токены shadcn: в продукте не используются, диаграммы красятся --wine-*. */
+    --chart-1: #a57b18;
+    --chart-2: #6c4013;
+    --chart-3: #511f26;
+    --chart-4: #972675;
+    --chart-5: #6f6f62;
 
     --radius: 0rem;
 
-    --sidebar: #efe3dc;
-    --sidebar-foreground: #444242;
-    --sidebar-primary: #444242;
-    --sidebar-primary-foreground: #efe3dc;
-    --sidebar-accent: #dacabf;
-    --sidebar-accent-foreground: #444242;
-    --sidebar-border: #938a83;
-    --sidebar-ring: #444242;
+    --sidebar: #f5f3ea;
+    --sidebar-foreground: #1b1c15;
+    --sidebar-primary: #5b6a10;
+    --sidebar-primary-foreground: #f4f3e8;
+    --sidebar-accent: #e9e7db;
+    --sidebar-accent-foreground: #1b1c15;
+    --sidebar-border: #807e6e;
+    --sidebar-ring: #1b1c15;
 }
 
 .dark {
-    /* Ink Teal / Slate Teal / Warm Bone / Mid Gray */
-    --background: #062d32;
-    --foreground: #e9e9e2;
-    --card: #344b52;
-    --card-foreground: #e9e9e2;
-    --popover: #344b52;
-    --popover-foreground: #e9e9e2;
-    --primary: #e9e9e2;
-    --primary-foreground: #062d32;
-    --secondary: #344b52;
-    --secondary-foreground: #e9e9e2;
-    --muted: #344b52;
-    /* Mid Gray #767676 из макета даёт на Ink Teal контраст ~3.4:1 — мало для капс-лейблов
-       в 10–11px. Держим тот же нейтрально-тёплый тон, но светлее, до ~5.3:1. */
-    --muted-foreground: #9a9a94;
-    --accent: #344b52;
-    --accent-foreground: #e9e9e2;
-    --destructive: #c9767f;
-    --border: rgb(52 75 82 / 60%);
-    --input: rgb(52 75 82 / 60%);
-    --ring: #e9e9e2;
+    /* Тёмная тема — ровно холст сайта: лоза на закате, кремовая бумага поверх. */
+    --background: #14150f;
+    --foreground: #f4f3e8;
+    --card: #1f2018;
+    --card-foreground: #f4f3e8;
+    --popover: #1f2018;
+    --popover-foreground: #f4f3e8;
+    /* Фирменный лайм: единственное яркое пятно в интерфейсе, только на главном действии. */
+    --primary: #d6e85a;
+    --primary-foreground: #14150f;
+    --secondary: #1f2018;
+    --secondary-foreground: #f4f3e8;
+    --muted: #1f2018;
+    --muted-foreground: #a5a497;
+    --accent: #1f2018;
+    --accent-foreground: #f4f3e8;
+    --destructive: #e2707a;
+    /* Граница держит 3:1 к фону: у полей ввода нижняя линия и есть граница контрола. */
+    --border: #66665c;
+    --input: #66665c;
+    --ring: #f4f3e8;
 
-    --accent-a: #c9a9b5;
-    --accent-b: #aa9e54;
-    --accent-ink: #444242;
+    --accent-a: #c49ab0;
+    --accent-b: #a8a05c;
+    --accent-ink: #14150f;
 
-    /* Свои шаги, а не осветлённые светлые: тёмная полоса светлоты уже (L 0.48–0.67). */
-    --wine-white: #b0902c;
-    --wine-red: #ac4351;
-    --wine-orange: #cd7a2c;
-    --wine-rose: #c974ab;
+    /* Своя лестница, а не осветлённые светлые: на тёмном полоса светлоты идёт вверх. */
+    --wine-white: #f0dc5e;
+    --wine-orange: #cf8434;
+    --wine-red: #bf3b45;
+    --wine-rose: #c77bb4;
 
-    --category-scale: #c2a071;
-    --category-none: #9a9a94;
+    --category-scale: #cf8434;
+    --category-none: #a5a497;
 
-    --chart-1: #b4525e;
-    --chart-2: #aa9e54;
-    --chart-3: #c9a9b5;
-    --chart-4: #c07a3e;
-    --chart-5: #767676;
+    --chart-1: #f0dc5e;
+    --chart-2: #cf8434;
+    --chart-3: #bf3b45;
+    --chart-4: #c77bb4;
+    --chart-5: #9a9a8c;
 
-    --sidebar: #344b52;
-    --sidebar-foreground: #e9e9e2;
-    --sidebar-primary: #e9e9e2;
-    --sidebar-primary-foreground: #062d32;
-    --sidebar-accent: #062d32;
-    --sidebar-accent-foreground: #e9e9e2;
-    --sidebar-border: rgb(52 75 82 / 60%);
-    --sidebar-ring: #e9e9e2;
+    --sidebar: #1f2018;
+    --sidebar-foreground: #f4f3e8;
+    --sidebar-primary: #d6e85a;
+    --sidebar-primary-foreground: #14150f;
+    --sidebar-accent: #14150f;
+    --sidebar-accent-foreground: #f4f3e8;
+    --sidebar-border: #66665c;
+    --sidebar-ring: #f4f3e8;
+}
+
+/*
+ * Фон приложения. Картинка приглушена до уровня, на котором интерфейс поверх остаётся
+ * читаемым: сам холст под ней сплошной, поэтому контраст текста почти не отличается от
+ * плоской темы. Тему выбирает CSS, а не React, — системная настройка меняется без
+ * участия приложения.
+ */
+.app-background {
+  background-image: var(--background-image-light);
+  opacity: 0.2;
+  animation: app-background-fade 420ms ease-out both;
+}
+
+.dark .app-background {
+  background-image: var(--background-image-dark);
+  opacity: 0.32;
+}
+
+@keyframes app-background-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Смена фона — украшение, а не сообщение: без анимации он просто появляется. */
+@media (prefers-reduced-motion: reduce) {
+  .app-background {
+    animation: none;
+  }
 }
 
 @layer base {

@@ -19,7 +19,7 @@ export function WeekCalendar({
   const Element = onSelectDay ? 'button' : 'div'
 
   return (
-    <div className={cn('grid grid-cols-7 border border-border', className)}>
+    <div className={cn('grid grid-cols-7 border border-border bg-card', className)}>
       {days.map((day) => (
         // Обработчика выбора дня никто не передаёт, поэтому все семь ячеек — это семь
         // заблокированных кнопок: клавиатура на них останавливается, скринридер объявляет

@@ -28,6 +28,8 @@ export { SharePanel } from './components/SharePanel'
 export { StatsScreen } from './components/StatsScreen'
 export { TrashScreen } from './components/TrashScreen'
 export { WeekScreen } from './components/WeekScreen'
+export { AppBackground, WineBackgroundProvider } from './wine-background'
+export { useWineBackground } from './wine-background-context'
 export { WineScreen } from './components/WineScreen'
 export { WinesScreen } from './components/WinesScreen'
 

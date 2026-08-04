@@ -3,7 +3,7 @@ import { useState } from 'react'
 
 import { Typography } from '@/components/ui/typography'
 import { EmailVerificationNotice, useAuth, useTranslation } from '@/features/auth'
-import { BottomNav, TextLinkAction } from '@/features/diary'
+import { AppBackground, BottomNav, TextLinkAction, WineBackgroundProvider } from '@/features/diary'
 import { useAppliedTheme } from '@/features/profile'
 
 export function RootLayout() {
@@ -23,8 +23,10 @@ export function RootLayout() {
   }
 
   return (
-    <div className="flex min-h-svh flex-col bg-background text-foreground">
-      <header className="border-b border-border bg-card">
+    <WineBackgroundProvider>
+    <div className="relative flex min-h-svh flex-col bg-background text-foreground">
+      <AppBackground />
+      <header className="relative z-10 border-b border-border bg-card">
         <div className="mx-auto flex w-full max-w-2xl items-center gap-3 px-4 py-4">
           <Typography asChild variant="capsNav">
             <Link to="/">{t('app.name')}</Link>
@@ -46,13 +48,16 @@ export function RootLayout() {
         )}
       </header>
 
-      <EmailVerificationNotice />
+      <div className="relative z-10">
+        <EmailVerificationNotice />
+      </div>
 
-      <main className="mx-auto w-full max-w-2xl flex-1">
+      <main className="relative z-10 mx-auto w-full max-w-2xl flex-1">
         <Outlet />
       </main>
 
       {auth.isAuthenticated && <BottomNav />}
     </div>
+    </WineBackgroundProvider>
   )
 }

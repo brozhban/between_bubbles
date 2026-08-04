@@ -67,7 +67,7 @@ export function StatsScreen() {
 
       {stats.data && stats.data.totalEntries > 0 && (
         <>
-          <section className="grid grid-cols-3 gap-4 border border-border p-4">
+          <section className="grid grid-cols-3 gap-4 border border-border bg-card p-4">
             <Metric label={t('week.totalEntries')} value={String(stats.data.totalEntries)} />
             <Metric label={t('week.totalGlasses')} value={formatNumber(stats.data.totalGlasses)} />
             <Metric label={t('week.totalMl')} value={String(stats.data.totalMl)} />

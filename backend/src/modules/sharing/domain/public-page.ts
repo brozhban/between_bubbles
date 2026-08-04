@@ -71,8 +71,8 @@ export function renderSharedEntryPage(entry: SharedEntry, pageUrl: string): stri
 <meta property="og:url" content="${escapeAttribute(pageUrl)}">
 ${cover ? `<meta property="og:image" content="${escapeAttribute(cover.url)}">` : ''}
 <meta name="twitter:card" content="${cover ? 'summary_large_image' : 'summary'}">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#dacabf">
-<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#062d32">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#e9e7db">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14150f">
 <style>${pageStyles}</style>
 </head>
 <body>
@@ -187,22 +187,33 @@ function escapeAttribute(value: string): string {
   return escapeHtml(value).replaceAll('"', '&quot;').replaceAll("'", '&#39;')
 }
 
-/** Палитра и типографика из DESIGN.md: страница должна читаться как часть дневника. */
+/**
+ * Палитра и типографика из DESIGN.md: страница должна читаться как часть дневника.
+ *
+ * Третья копия токенов после `webapp/src/index.css` и `website/src/layouts/Page.astro`.
+ * Держать её здесь дешевле, чем тянуть общий пакет стилей: страница рендерится строкой
+ * на сервере, у неё нет сборщика и не должно быть внешних запросов. Но при смене палитры
+ * правятся все три места — иначе ссылка, которой человек делится, останется в старом бренде.
+ *
+ * Шрифты здесь системные, а не самохостящиеся: ради одной страницы предпросмотра
+ * бэкенду пришлось бы отдавать шрифтовые файлы. Начертания названы теми же, что в
+ * дневнике, — где они есть в системе, страница совпадёт с ним полностью.
+ */
 const pageStyles = `
-:root{--bg:#dacabf;--surface:#efe3dc;--text:#444242;--muted:#595552;--border:#938a83;--accent:#aa9e54}
-@media (prefers-color-scheme:dark){:root{--bg:#062d32;--surface:#344b52;--text:#e9e9e2;--muted:#767676;--border:#344b52;--accent:#aa9e54}}
+:root{--bg:#e9e7db;--surface:#f5f3ea;--text:#1b1c15;--muted:#5b5c50;--border:#807e6e;--accent:#5b6a10;--accent-ink:#f4f3e8}
+@media (prefers-color-scheme:dark){:root{--bg:#14150f;--surface:#1f2018;--text:#f4f3e8;--muted:#a5a497;--border:#66665c;--accent:#d6e85a;--accent-ink:#14150f}}
 *{box-sizing:border-box}
-body{margin:0;padding:0 0 32px;background:var(--bg);color:var(--text);font-family:Inter,system-ui,sans-serif}
+body{margin:0;padding:0 0 32px;background:var(--bg);color:var(--text);font-family:'Inter Variable',Inter,system-ui,sans-serif}
 main{max-width:520px;margin:0 auto}
 .cover{display:block;width:100%;height:auto;max-height:60vh;object-fit:cover}
 .card{background:var(--surface);border:1px solid var(--border);border-top:0;padding:24px;display:grid;gap:12px}
-h1{margin:0;font-family:Lora,Georgia,serif;font-weight:400;font-size:28px;line-height:1.2}
-.caps{margin:0;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{margin:0;font-weight:400;font-size:28px;line-height:1.2}
+.caps{margin:0;font-family:'JetBrains Mono Variable',ui-monospace,monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .meta{margin:0;font-size:13px;color:var(--muted);line-height:1.5}
-.rating{margin:0;justify-self:start;background:var(--accent);color:#2b2b2b;font-size:15px;font-weight:500;padding:4px 10px}
+.rating{margin:0;justify-self:start;background:var(--accent);color:var(--accent-ink);font-family:'JetBrains Mono Variable',ui-monospace,monospace;font-size:15px;font-weight:500;padding:4px 10px}
 .facts{margin:0;display:grid;gap:4px}
 .facts dd{margin:0;font-size:14px}
-.notes{margin:0;font-family:Lora,Georgia,serif;font-size:16px;line-height:1.5;white-space:pre-wrap}
+.notes{margin:0;font-size:16px;line-height:1.5;white-space:pre-wrap}
 .author{margin-top:8px}
 .disclaimer{margin:16px 24px 0;font-size:11px;line-height:1.5;color:var(--muted)}
 `

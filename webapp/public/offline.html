@@ -3,8 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#dacabf" />
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#062d32" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#e9e7db" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#14150f" />
     <title>Between Bubbles — нет соединения</title>
     <style>
       /*
@@ -13,20 +13,20 @@
        * Цвета — из DESIGN.md, обе темы.
        */
       :root {
-        --bg: #dacabf;
-        --surface: #efe3dc;
-        --text: #444242;
-        --muted: #595552;
-        --border: #938a83;
+        --bg: #e9e7db;
+        --surface: #f5f3ea;
+        --text: #1b1c15;
+        --muted: #5b5c50;
+        --border: #807e6e;
       }
 
       @media (prefers-color-scheme: dark) {
         :root {
-          --bg: #062d32;
-          --surface: #344b52;
-          --text: #e9e9e2;
-          --muted: #767676;
-          --border: #344b52;
+          --bg: #14150f;
+          --surface: #1f2018;
+          --text: #f4f3e8;
+          --muted: #a5a497;
+          --border: #66665c;
         }
       }
 
@@ -38,7 +38,7 @@
         padding: 24px;
         background: var(--bg);
         color: var(--text);
-        font-family: Inter, system-ui, sans-serif;
+        font-family: 'Inter Variable', Inter, system-ui, sans-serif;
       }
 
       main {
@@ -52,10 +52,10 @@
 
       h1 {
         margin: 0;
-        font-family: Lora, Georgia, serif;
         font-weight: 400;
         font-size: 28px;
         line-height: 1.2;
+        letter-spacing: -0.02em;
       }
 
       p {

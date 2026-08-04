@@ -149,7 +149,7 @@ export function AdminStoresScreen() {
             )}
 
             {mergingId === store.id && (
-              <div className="grid gap-3 border border-border p-3">
+              <div className="grid gap-3 border border-border bg-card p-3">
                 <Typography variant="caption" tone="muted">
                   {t('admin.mergeHint')}
                 </Typography>

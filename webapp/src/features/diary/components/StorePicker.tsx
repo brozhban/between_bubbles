@@ -72,7 +72,7 @@ export function StorePicker({
         <Typography variant="capsLabel" tone="muted">
           {t('store.label')}
         </Typography>
-        <div className="flex items-center justify-between gap-3 border border-border p-3">
+        <div className="flex items-center justify-between gap-3 border border-border bg-card p-3">
           <Typography variant="fieldValue">{describe(picked)}</Typography>
           <TextLinkAction type="button" arrow="" onClick={clear}>
             {t('store.change')}
@@ -117,7 +117,7 @@ export function StorePicker({
 
       {/* Подсказка о дубле показывается только когда человек собрался создавать новый. */}
       {isAskingAboutDuplicate && (
-        <div className="grid gap-3 border border-border p-3">
+        <div className="grid gap-3 border border-border bg-card p-3">
           <Typography variant="bodySm">
             {t('store.maybeMeant', { name: suggestion.name })}
           </Typography>
@@ -133,7 +133,7 @@ export function StorePicker({
       )}
 
       {isCreating && !isAskingAboutDuplicate && (
-        <div className="grid gap-4 border border-border p-3">
+        <div className="grid gap-4 border border-border bg-card p-3">
           <UnderlineInput
             label={t('store.city')}
             value={city}

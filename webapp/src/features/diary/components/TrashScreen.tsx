@@ -65,7 +65,7 @@ export function TrashScreen() {
         <>
           <div className="grid gap-4">
             {items.map((entry) => (
-              <div key={entry.id} className="grid gap-2 border border-border">
+              <div key={entry.id} className="grid gap-2 border border-border bg-card">
                 <EntryRow entry={entry} />
                 <div className="flex items-center justify-between px-4 pb-3">
                   <Typography variant="caption" tone="muted">
@@ -89,7 +89,7 @@ export function TrashScreen() {
           </div>
 
           {isConfirmingEmpty ? (
-            <div className="grid gap-3 border border-border p-4">
+            <div className="grid gap-3 border border-border bg-card p-4">
               <Typography variant="bodySm">
                 {t('trash.emptyAllConfirm', { count: items.length })}
               </Typography>
