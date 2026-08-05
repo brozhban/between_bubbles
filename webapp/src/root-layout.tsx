@@ -48,7 +48,8 @@ export function RootLayout() {
         )}
       </header>
 
-      <div className="relative z-10">
+      {/* Напоминание о почте лежит вне колонки содержимого, поэтому несёт своё стекло. */}
+      <div className="glass relative z-10 empty:hidden">
         <EmailVerificationNotice />
       </div>
 
