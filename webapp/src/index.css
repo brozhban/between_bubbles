@@ -47,6 +47,7 @@
     --color-wine-red: var(--wine-red);
     --color-wine-rose: var(--wine-rose);
     --color-wine-orange: var(--wine-orange);
+    --color-wine-sparkling: var(--wine-sparkling);
 
     --color-category-scale: var(--category-scale);
     --color-category-none: var(--category-none);
@@ -124,14 +125,17 @@
     --accent-ink: #1b1c15;
 
     /*
-     * Типы вина: лестница по светлоте. На светлой карточке все четыре обязаны быть
+     * Типы вина: лестница по светлоте. На светлой карточке все пять обязаны быть
      * тёмными ради контраста, поэтому диапазон узкий и оттенки уходят в глубокие —
      * оранжевое вино и в жизни янтарно-коричневое, так что узнаваемость не страдает.
+     * Игристое — единственный холодный оттенок (сине-зелёный): рядом с жёлтым белым
+     * и тёплыми остальными оно не путается ни с одним из них.
      */
     --wine-white: #a57b18;
     --wine-orange: #6c4013;
     --wine-red: #511f26;
     --wine-rose: #972675;
+    --wine-sparkling: #2e6f73;
 
     /* Категории вкуса — последовательная шкала: их семь, и различать их цветом нельзя. */
     --category-scale: #6c4013;
@@ -188,6 +192,7 @@
     --wine-orange: #cf8434;
     --wine-red: #bf3b45;
     --wine-rose: #c77bb4;
+    --wine-sparkling: #6cc2c4;
 
     --category-scale: #cf8434;
     --category-none: #a5a497;

@@ -33,7 +33,7 @@ export type MetricEntry = {
 }
 
 /** Порядок фиксирован, чтобы цвет сектора на диаграмме не «прыгал» между неделями. */
-const wineTypeOrder: readonly WineType[] = ['WHITE', 'RED', 'ROSE', 'ORANGE']
+const wineTypeOrder: readonly WineType[] = ['WHITE', 'RED', 'ROSE', 'ORANGE', 'SPARKLING']
 const tasteCategoryOrder: readonly TasteCategory[] = ['I', 'II', 'III', 'IV', 'V', 'VI']
 const currencyOrder: readonly Currency[] = ['GEL', 'RUB', 'USD', 'EUR']
 

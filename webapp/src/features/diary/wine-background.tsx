@@ -11,7 +11,11 @@ import sparklingLight from '@/assets/backgrounds/sparkling-light.webp'
 import whiteDark from '@/assets/backgrounds/white-dark.webp'
 import whiteLight from '@/assets/backgrounds/white-light.webp'
 
-import { WineBackgroundContext, type BackgroundVariant } from './wine-background-context'
+import {
+	DEFAULT_BACKGROUND,
+	WineBackgroundContext,
+	type BackgroundVariant,
+} from './wine-background-context'
 
 /**
  * Фон приложения: бокал в погребе за содержимым экрана.
@@ -23,7 +27,7 @@ import { WineBackgroundContext, type BackgroundVariant } from './wine-background
  */
 
 const sources: Record<BackgroundVariant, { light: string; dark: string }> = {
-	sparkling: { light: sparklingLight, dark: sparklingDark },
+	SPARKLING: { light: sparklingLight, dark: sparklingDark },
 	WHITE: { light: whiteLight, dark: whiteDark },
 	RED: { light: redLight, dark: redDark },
 	ROSE: { light: roseLight, dark: roseDark },
@@ -31,7 +35,7 @@ const sources: Record<BackgroundVariant, { light: string; dark: string }> = {
 }
 
 export function WineBackgroundProvider({ children }: { children: ReactNode }) {
-	const [variant, setVariant] = useState<BackgroundVariant>('sparkling')
+	const [variant, setVariant] = useState<BackgroundVariant>(DEFAULT_BACKGROUND)
 	const value = useMemo(() => ({ variant, setVariant }), [variant])
 
 	return <WineBackgroundContext.Provider value={value}>{children}</WineBackgroundContext.Provider>
@@ -43,7 +47,7 @@ export function WineBackgroundProvider({ children }: { children: ReactNode }) {
  * с системной настройкой, которая меняется без участия приложения.
  */
 export function AppBackground() {
-	const variant = useContext(WineBackgroundContext)?.variant ?? 'sparkling'
+	const variant = useContext(WineBackgroundContext)?.variant ?? DEFAULT_BACKGROUND
 	const source = sources[variant]
 
 	return (

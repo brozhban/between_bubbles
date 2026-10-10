@@ -292,6 +292,7 @@ enum WineType {
   RED
   ROSE
   ORANGE
+  SPARKLING
 
   @@map("wine_type")
 }
