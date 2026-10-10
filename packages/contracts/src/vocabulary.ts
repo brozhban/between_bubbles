@@ -8,7 +8,7 @@ import { z } from 'zod'
  */
 
 export const currencySchema = z.enum(['GEL', 'RUB', 'USD', 'EUR'])
-export const wineTypeSchema = z.enum(['WHITE', 'RED', 'ROSE', 'ORANGE'])
+export const wineTypeSchema = z.enum(['WHITE', 'RED', 'ROSE', 'ORANGE', 'SPARKLING'])
 export const sugarLevelSchema = z.enum(['DRY', 'SEMI_DRY', 'SEMI_SWEET', 'SWEET'])
 export const bodySchema = z.enum(['LIGHT', 'MEDIUM', 'FULL'])
 export const aciditySchema = z.enum(['LOW', 'MEDIUM', 'HIGH'])
@@ -64,6 +64,7 @@ export const wineTypeLabels: Record<WineType, Label> = {
   RED: { ru: 'красное', en: 'red' },
   ROSE: { ru: 'розовое', en: 'rosé' },
   ORANGE: { ru: 'оранж', en: 'orange' },
+  SPARKLING: { ru: 'игристое', en: 'sparkling' },
 }
 
 export const sugarLevelLabels: Record<SugarLevel, Label> = {

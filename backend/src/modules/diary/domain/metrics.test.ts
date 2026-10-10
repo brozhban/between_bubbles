@@ -113,12 +113,14 @@ describe('typeDistribution', () => {
       entry({ wineType: 'RED' }),
       entry({ wineType: 'ORANGE' }),
       entry({ wineType: 'WHITE' }),
+      entry({ wineType: 'SPARKLING' }),
     ])
 
     expect(result).toEqual([
-      { type: 'WHITE', count: 1, share: 0.25 },
-      { type: 'RED', count: 2, share: 0.5 },
-      { type: 'ORANGE', count: 1, share: 0.25 },
+      { type: 'WHITE', count: 1, share: 0.2 },
+      { type: 'RED', count: 2, share: 0.4 },
+      { type: 'ORANGE', count: 1, share: 0.2 },
+      { type: 'SPARKLING', count: 1, share: 0.2 },
     ])
   })
 

@@ -30,10 +30,11 @@ const wineTypeFill: Record<WineType, string> = {
   RED: 'var(--wine-red)',
   ORANGE: 'var(--wine-orange)',
   ROSE: 'var(--wine-rose)',
+  SPARKLING: 'var(--wine-sparkling)',
 }
 
 /** Порядок отрисовки: между красным и розовым обязано стоять оранжевое — рядом они неразличимы. */
-const sectorOrder: readonly WineType[] = ['WHITE', 'RED', 'ORANGE', 'ROSE']
+const sectorOrder: readonly WineType[] = ['WHITE', 'RED', 'ORANGE', 'ROSE', 'SPARKLING']
 
 export function WeekCharts({
   metrics,
@@ -111,7 +112,7 @@ function DailyBars({ days, locale }: { days: readonly WeekDayDto[]; locale: Loca
   )
 }
 
-/** Круговая по типам вина: 4 фиксированных цвета, зазор в цвет поверхности между секторами. */
+/** Круговая по типам вина: 5 фиксированных цветов, зазор в цвет поверхности между секторами. */
 export function WineTypePie({
   distribution,
   locale,

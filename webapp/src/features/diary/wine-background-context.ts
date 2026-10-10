@@ -5,12 +5,14 @@ import { createContext, useContext, useEffect } from 'react'
  * Состояние фона приложения отдельно от самих компонентов: иначе один файл экспортирует
  * и компоненты, и хук, а горячая перезагрузка на таком файле перестаёт работать.
  *
- * По умолчанию — игристое. Отдельным типом вина оно в продукте не является
- * (`wineTypeSchema` знает только четыре), поэтому это нейтральное состояние, а не
- * пятый вариант выбора.
+ * По умолчанию — игристое: бокал с пузырьками годится как нейтральный фон там, где
+ * никакое вино не выбрано. Теперь игристое ещё и полноценный тип вина, поэтому отдельного
+ * «нейтрального» варианта нет — фон всегда один из `WineType`.
  */
 
-export type BackgroundVariant = 'sparkling' | WineType
+export type BackgroundVariant = WineType
+
+export const DEFAULT_BACKGROUND: BackgroundVariant = 'SPARKLING'
 
 export const WineBackgroundContext = createContext<{
 	variant: BackgroundVariant
@@ -29,7 +31,7 @@ export function useWineBackground(type: WineType | null | undefined) {
 	useEffect(() => {
 		if (!setVariant) return
 
-		setVariant(type ?? 'sparkling')
-		return () => setVariant('sparkling')
+		setVariant(type ?? DEFAULT_BACKGROUND)
+		return () => setVariant(DEFAULT_BACKGROUND)
 	}, [setVariant, type])
 }
