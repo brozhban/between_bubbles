@@ -5,6 +5,7 @@ import barrelHall from '../assets/barrel-hall.jpg'
 import vineyardDusk from '../assets/vineyard-dusk.jpg'
 import wineStorage from '../assets/wine-storage.jpg'
 import Page from '../layouts/Page.astro'
+import { WEBAPP_HOST } from '../legal'
 
 /**
  * Лендинг в направлении «Виноградник на закате» (основа: INVERSA).
@@ -26,7 +27,11 @@ import Page from '../layouts/Page.astro'
  * нет в тексте рядом. Поэтому `alt` пустой — экранный диктор их пропускает, а не
  * зачитывает пересказ пейзажа.
  */
-const webappUrl = import.meta.env.PUBLIC_WEBAPP_URL ?? 'http://localhost:5173'
+// localhost — только для `astro dev`: в продакшен-сборке запасным значением служит тот же хост,
+// что оферта называет в предмете договора, а не адрес dev-сервера.
+const webappUrl =
+	import.meta.env.PUBLIC_WEBAPP_URL?.trim() ||
+	(import.meta.env.DEV ? 'http://localhost:5173' : `https://${WEBAPP_HOST}`)
 ---
 
 <Page
