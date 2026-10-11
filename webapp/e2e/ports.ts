@@ -119,13 +119,27 @@ function parsePortValue(value: string | undefined, envName: string) {
   return parsePort(value, envName)
 }
 
-function isPortAvailable(port: number) {
+/**
+ * Порт свободен, только если его можно занять и на loopback, и на всех интерфейсах.
+ *
+ * Vite слушает 127.0.0.1, а бэкенд (`Bun.serve` без hostname) — все интерфейсы. На macOS порт
+ * бывает занят на `0.0.0.0`/`::` и при этом свободен на 127.0.0.1, поэтому проверка одного
+ * loopback пропускала порт, на котором бэкенд потом падал с EADDRINUSE.
+ */
+async function isPortAvailable(port: number) {
+  for (const host of ['127.0.0.1', undefined]) {
+    if (!(await canListen(port, host))) return false
+  }
+  return true
+}
+
+function canListen(port: number, host: string | undefined) {
   return new Promise<boolean>((resolveAvailability) => {
     const server = createServer()
     server.once('error', () => resolveAvailability(false))
     server.once('listening', () => {
       server.close(() => resolveAvailability(true))
     })
-    server.listen({ host: '127.0.0.1', port })
+    server.listen({ host, port })
   })
 }
