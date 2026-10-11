@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process';
+import { execFileSync, spawnSync } from 'node:child_process';
 import { mkdtempSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { resolve } from 'node:path';
@@ -116,15 +116,26 @@ describe('prepare-do-specs', () => {
   });
 
   test('rejects deployment spec generation from a different checkout branch', () => {
-    const result = runPrepareSpecs(
-      {
-        DO_GIT_BRANCH: 'codex-deploy-branch-mismatch-test',
-      },
-      { skipReleaseGitCheck: false },
-    );
+    // Своя копия git на именованной ветке: в CI пул-реквеста код вытащен на коммит слияния
+    // без ветки, и проверка честно падала бы раньше — на «нужна именованная ветка».
+    const checkout = mkdtempSync(resolve(tmpdir(), 'do-specs-git-'));
+    try {
+      execFileSync('git', ['init', '--quiet', '--initial-branch', 'some-feature-branch', checkout]);
 
-    expect(result.status).not.toBe(0);
-    expect(`${result.stdout}\n${result.stderr}`).toContain('Deployment branch mismatch');
+      const result = runPrepareSpecs(
+        {
+          DO_GIT_BRANCH: 'codex-deploy-branch-mismatch-test',
+          GIT_DIR: resolve(checkout, '.git'),
+          GIT_WORK_TREE: checkout,
+        },
+        { skipReleaseGitCheck: false },
+      );
+
+      expect(result.status).not.toBe(0);
+      expect(`${result.stdout}\n${result.stderr}`).toContain('Deployment branch mismatch');
+    } finally {
+      rmSync(checkout, { recursive: true, force: true });
+    }
   });
 
   test('generates explicit backend worker and cron job blocks', () => {
