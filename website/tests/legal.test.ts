@@ -220,5 +220,7 @@ function legalPageSources() {
 			path: entry.split(sep).join('/'),
 			source: readFileSync(resolve(pagesDir, entry), 'utf8'),
 		}))
-		.filter(({ source }) => /from '(\.\.\/)+legal'/.test(source))
+		// Страница «на реквизитах» — та, что печатает их через `field`. Одного импорта из legal
+		// мало: лендинг берёт оттуда только адрес дневника и правовой страницей не является.
+		.filter(({ source }) => /from '(\.\.\/)+legal'/.test(source) && source.includes('field('))
 }
