@@ -47,6 +47,15 @@ describe('audit wrapper', () => {
     expect(`${result.stdout}${result.stderr}`).toContain('проверка пропущена');
   });
 
+  test('передаёт исключённые находки в bun audit', () => {
+    // Заглушка падает, если исключение не дошло до аудита.
+    const result = runAuditWithFakeBun(
+      '#!/bin/sh\ncase "$*" in *--ignore=GHSA-vfj7-8cjw-p6xm*) exit 0;; esac\necho "high: braces"\nexit 1\n',
+    );
+
+    expect(result.status).toBe(0);
+  });
+
   test('проходит молча, когда всё чисто', () => {
     const result = runAuditWithFakeBun('#!/bin/sh\necho "No vulnerabilities found"\nexit 0\n');
 

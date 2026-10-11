@@ -16,6 +16,20 @@ import { spawnSync } from 'node:child_process'
 const attempts = 3
 // Пауза настраивается ради тестов: ждать пять секунд, проверяя логику повторов, незачем.
 const delayMs = Number(process.env.AUDIT_RETRY_DELAY_MS ?? 5_000)
+
+/**
+ * Находки, которые сознательно не валят сборку. Сюда попадает только то, у чего нет
+ * исправленной версии, и только с причиной и условием снятия. Как только исправление
+ * выйдет, запись удаляется и пакет обновляется через `overrides`.
+ */
+const ignoredAdvisories = [
+  // braces ≤ 3.0.3, DoS на глубоко вложенных шаблонах. Исправленной версии нет: 3.0.3 —
+  // последняя. Приходит только через инструмент разработки shadcn (fast-glob → micromatch),
+  // в сборку и на сервер не попадает, а шаблоны в нём — наши, не пользовательские.
+  // Снять, когда выйдет braces > 3.0.3.
+  'GHSA-vfj7-8cjw-p6xm',
+]
+
 const transientPatterns = [
   /audit request failed/i,
   /status 5\d\d/,
@@ -23,7 +37,11 @@ const transientPatterns = [
 ]
 
 for (let attempt = 1; attempt <= attempts; attempt += 1) {
-  const result = spawnSync('bun', ['audit', '--audit-level=low'], { encoding: 'utf8' })
+  const result = spawnSync(
+    'bun',
+    ['audit', '--audit-level=low', ...ignoredAdvisories.map((id) => `--ignore=${id}`)],
+    { encoding: 'utf8' },
+  )
   const output = `${result.stdout ?? ''}${result.stderr ?? ''}`
   process.stdout.write(output)
 
