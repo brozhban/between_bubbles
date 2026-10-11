@@ -1,9 +1,16 @@
 import { photoKindLabels, type EntryPhotoDto, type PhotoKind } from '@between-bubbles/contracts'
-import { useRef, useState } from 'react'
+import { useEffect, useEffectEvent, useRef, useState } from 'react'
 
 import { Typography } from '@/components/ui/typography'
 import { useTranslation } from '@/features/auth'
 import { ApiRequestError } from '@/platform/api'
+import {
+  canReadClipboardImages,
+  ClipboardImageError,
+  imageFromPaste,
+  isEditableTarget,
+  readClipboardImage,
+} from '../clipboard-image'
 import { compressToJpeg, PhotoCompressionError } from '../photo-compression'
 import { useDeletePhotoMutation, useUploadPhotoMutation } from '../queries'
 import { TextLinkAction } from './OutlinedButton'
@@ -90,6 +97,37 @@ export function PhotoUploader(props: PhotoUploaderProps) {
     } finally {
       // Сбрасываем input, иначе повторный выбор того же файла не вызовет change.
       if (inputRef.current) inputRef.current.value = ''
+    }
+  }
+
+  // ⌘V / Ctrl+V в любом месте экрана с блоком фото. Слушаем документ, а не сам блок: фокус
+  // обычно стоит в поле формы, и событие до блока просто не дошло бы.
+  const onPaste = useEffectEvent((event: ClipboardEvent) => {
+    if (upload.isPending) return
+    const file = imageFromPaste({
+      items: event.clipboardData?.items ?? [],
+      types: event.clipboardData?.types ?? [],
+      targetIsEditable: isEditableTarget(event.target),
+    })
+    if (!file) return
+    event.preventDefault()
+    void handleFile(file)
+  })
+
+  useEffect(() => {
+    if (isFull) return
+    const listener = (event: ClipboardEvent) => onPaste(event)
+    document.addEventListener('paste', listener)
+    return () => document.removeEventListener('paste', listener)
+  }, [isFull])
+
+  const pasteFromClipboard = async () => {
+    setError(null)
+    try {
+      await handleFile(await readClipboardImage())
+    } catch (caught) {
+      if (!(caught instanceof ClipboardImageError)) throw caught
+      setError(t(caught.reason === 'empty' ? 'photos.clipboardEmpty' : 'photos.clipboardDenied'))
     }
   }
 
@@ -180,22 +218,37 @@ export function PhotoUploader(props: PhotoUploaderProps) {
             ))}
           </div>
 
-          <Typography asChild variant="capsNav" tone="muted">
-            <label className="inline-flex cursor-pointer items-center gap-2 border border-foreground px-4 py-3">
-              {upload.isPending ? t('photos.uploading') : t('photos.add')}
-              <input
-                ref={inputRef}
-                type="file"
-                accept="image/*"
-                className="sr-only"
-                disabled={upload.isPending}
-                onChange={(event) => void handleFile(event.target.files?.[0])}
-              />
-            </label>
-          </Typography>
+          <div className="flex flex-wrap gap-2">
+            <Typography asChild variant="capsNav" tone="muted">
+              <label className="inline-flex cursor-pointer items-center gap-2 border border-foreground px-4 py-3">
+                {upload.isPending ? t('photos.uploading') : t('photos.add')}
+                <input
+                  ref={inputRef}
+                  type="file"
+                  accept="image/*"
+                  className="sr-only"
+                  disabled={upload.isPending}
+                  onChange={(event) => void handleFile(event.target.files?.[0])}
+                />
+              </label>
+            </Typography>
+
+            {canReadClipboardImages() && (
+              <Typography asChild variant="capsNav" tone="muted">
+                <button
+                  type="button"
+                  disabled={upload.isPending}
+                  onClick={() => void pasteFromClipboard()}
+                  className="inline-flex items-center gap-2 border border-foreground px-4 py-3"
+                >
+                  {t('photos.paste')}
+                </button>
+              </Typography>
+            )}
+          </div>
 
           <Typography variant="caption" tone="muted">
-            {staged ? t('photos.pendingHint') : t('photos.hint')}
+            {staged ? t('photos.pendingHint') : t('photos.hint')} {t('photos.pasteHint')}
           </Typography>
         </div>
       )}
