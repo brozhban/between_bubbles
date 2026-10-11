@@ -59,3 +59,39 @@ test('фото в форме → миниатюра в неделе → полн
   await page.locator('figure').getByRole('button', { name: 'Удалить' }).click()
   await expect(page.getByRole('img', { name: 'Бутылка' })).toHaveCount(0)
 })
+
+/**
+ * Вставка из буфера (⌘V / Ctrl+V) идёт тем же путём, что и выбранный файл. Системный буфер
+ * в headless-браузере недоступен, поэтому событие вставки собираем сами — ровно такое,
+ * какое браузер отправляет при вставке скопированной картинки.
+ */
+test('фото бутылки вставляется из буфера обмена и уезжает вместе с записью', async ({ page }) => {
+  await registerUser(page, uniqueEmail('e2e-paste'), 'E2E Paste')
+
+  await page.getByRole('link', { name: 'Добавить' }).click()
+  await page.getByLabel('Дата дегустации').fill(tastingDate())
+  await page.getByLabel('Название').fill('Paste E2E')
+  await page.getByRole('button', { name: 'К оценке' }).click()
+  await page.getByRole('slider', { name: 'Оценка' }).fill('4')
+
+  const photo = tastingPhoto()
+  await page.evaluate(
+    ({ base64, name, type }) => {
+      const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0))
+      const clipboardData = new DataTransfer()
+      clipboardData.items.add(new File([bytes], name, { type }))
+      document.dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true }))
+    },
+    { base64: photo.buffer.toString('base64'), name: photo.name, type: photo.mimeType },
+  )
+
+  await expect(page.getByRole('img', { name: 'Бутылка' })).toBeVisible()
+  await expectRendered(page.getByRole('img', { name: 'Бутылка' }))
+
+  await page.getByRole('button', { name: 'Сохранить запись' }).click()
+  await expect(page.getByText(/Неделя \d+ · \d{4}/)).toBeVisible()
+
+  const entryLink = page.locator('a[href*="/entries/"]').first()
+  await expect(entryLink.locator('img')).toHaveCount(1)
+  await expectRendered(entryLink.locator('img'))
+})

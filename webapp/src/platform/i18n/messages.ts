@@ -226,6 +226,10 @@ export const messages = {
     'photos.uploadFailed': 'Не удалось загрузить фото. Попробуйте ещё раз.',
     'photos.decodeFailed': 'Не удалось открыть изображение. Попробуйте JPEG или PNG.',
     'photos.compressFailed': 'Не удалось подготовить фото к загрузке. Попробуйте другой файл.',
+    'photos.paste': 'Вставить из буфера',
+    'photos.pasteHint': 'Фото или скриншот можно вставить из буфера обмена: ⌘V / Ctrl+V.',
+    'photos.clipboardEmpty': 'В буфере обмена нет картинки. Скопируйте фото и попробуйте ещё раз.',
+    'photos.clipboardDenied': 'Браузер не дал прочитать буфер обмена. Вставьте фото сочетанием ⌘V / Ctrl+V.',
 
     'share.label': 'Публикация',
     'share.hint': 'Ссылку можно отправить кому угодно: она открывается без входа в дневник и не индексируется поиском.',
@@ -573,6 +577,10 @@ export const messages = {
     'photos.uploadFailed': 'Could not upload the photo. Please try again.',
     'photos.decodeFailed': 'Could not open the image. Try a JPEG or a PNG.',
     'photos.compressFailed': 'Could not prepare the photo for upload. Try another file.',
+    'photos.paste': 'Paste from clipboard',
+    'photos.pasteHint': 'You can paste a photo or screenshot from the clipboard: ⌘V / Ctrl+V.',
+    'photos.clipboardEmpty': 'There is no image in the clipboard. Copy a photo and try again.',
+    'photos.clipboardDenied': 'The browser did not allow reading the clipboard. Paste the photo with ⌘V / Ctrl+V.',
 
     'share.label': 'Sharing',
     'share.hint': 'The link opens without signing in and stays out of search results.',
