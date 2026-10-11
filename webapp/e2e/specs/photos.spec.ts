@@ -74,19 +74,23 @@ test('фото бутылки вставляется из буфера обме�
   await page.getByRole('button', { name: 'К оценке' }).click()
   await page.getByRole('slider', { name: 'Оценка' }).fill('4')
 
+  // Две вставки подряд, пока первая картинка ещё сжимается: обе должны остаться в форме,
+  // а не вторая молча затереть первую.
   const photo = tastingPhoto()
   await page.evaluate(
     ({ base64, name, type }) => {
       const bytes = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0))
-      const clipboardData = new DataTransfer()
-      clipboardData.items.add(new File([bytes], name, { type }))
-      document.dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true }))
+      for (let paste = 0; paste < 2; paste += 1) {
+        const clipboardData = new DataTransfer()
+        clipboardData.items.add(new File([bytes], name, { type }))
+        document.dispatchEvent(new ClipboardEvent('paste', { clipboardData, bubbles: true }))
+      }
     },
     { base64: photo.buffer.toString('base64'), name: photo.name, type: photo.mimeType },
   )
 
-  await expect(page.getByRole('img', { name: 'Бутылка' })).toBeVisible()
-  await expectRendered(page.getByRole('img', { name: 'Бутылка' }))
+  await expect(page.getByRole('img', { name: 'Бутылка' })).toHaveCount(2)
+  await expectRendered(page.getByRole('img', { name: 'Бутылка' }).first())
 
   await page.getByRole('button', { name: 'Сохранить запись' }).click()
   await expect(page.getByText(/Неделя \d+ · \d{4}/)).toBeVisible()
@@ -94,4 +98,8 @@ test('фото бутылки вставляется из буфера обме�
   const entryLink = page.locator('a[href*="/entries/"]').first()
   await expect(entryLink.locator('img')).toHaveCount(1)
   await expectRendered(entryLink.locator('img'))
+
+  // Обе вставленные картинки долетели до записи.
+  await entryLink.click()
+  await expect(page.getByRole('img', { name: 'Бутылка' })).toHaveCount(2)
 })

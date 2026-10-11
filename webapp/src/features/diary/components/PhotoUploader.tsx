@@ -30,7 +30,14 @@ export type StagedPhoto = { id: string; kind: PhotoKind; bytes: Uint8Array }
  */
 type PhotoUploaderProps =
   | { entryId: string; photos: readonly EntryPhotoDto[] }
-  | { staged: readonly StagedPhoto[]; onStagedChange: (next: StagedPhoto[]) => void }
+  | {
+      staged: readonly StagedPhoto[]
+      /**
+       * Принимает функцию от актуального списка, а не готовый список: сжатие асинхронное, и две
+       * вставки подряд иначе взяли бы один и тот же исходный список — вторая затёрла бы первую.
+       */
+      onStagedChange: (update: (current: StagedPhoto[]) => StagedPhoto[]) => void
+    }
 
 /** Источник картинки: подписанная ссылка с сервера либо байты, ещё не покинувшие браузер. */
 type PhotoSource =
@@ -84,7 +91,11 @@ export function PhotoUploader(props: PhotoUploaderProps) {
       if (saved) {
         await upload.mutateAsync({ entryId: saved.entryId, kind, bytes })
       } else if (staged) {
-        staged.onStagedChange([...staged.staged, { id: crypto.randomUUID(), kind, bytes }])
+        const photo = { id: crypto.randomUUID(), kind, bytes }
+        // Лимит проверяем на актуальном списке: пока шло сжатие, место могло закончиться.
+        staged.onStagedChange((current) =>
+          current.length >= MAX_PHOTOS ? current : [...current, photo],
+        )
       }
     } catch (caught) {
       setError(
@@ -136,7 +147,7 @@ export function PhotoUploader(props: PhotoUploaderProps) {
     if (saved) {
       remove.mutate({ entryId: saved.entryId, photoId })
     } else if (staged) {
-      staged.onStagedChange(staged.staged.filter((photo) => photo.id !== photoId))
+      staged.onStagedChange((current) => current.filter((photo) => photo.id !== photoId))
     }
   }
 
